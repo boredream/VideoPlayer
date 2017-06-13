@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="45dp"
+    android:layout_height="45dp"
+    android:layout_marginRight="14dp">
+
+    <TextView
+        android:id="@+id/tv_index"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_centerInParent="true"
+        android:background="@drawable/oval_gray_solid"
+        android:gravity="center"
+        android:textColor="@color/white"
+        android:textSize="13sp" />
+</RelativeLayout>
