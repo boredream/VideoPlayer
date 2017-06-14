@@ -29,6 +29,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.boredream.videoplayer.R;
+import com.boredream.videoplayer.VideoBehaviorView;
 import com.boredream.videoplayer.video.bean.VideoDetailInfo;
 import com.boredream.videoplayer.video.player.SimplePlayerCallback;
 import com.boredream.videoplayer.video.player.VideoPlayer;
@@ -37,48 +38,18 @@ import com.boredream.videoplayer.video.utils.NetworkUtils;
 import com.boredream.videoplayer.video.utils.ScreenUtils;
 import com.boredream.videoplayer.video.utils.StringUtils;
 
-public class VideoControllerView extends FrameLayout implements GestureDetector.OnGestureListener, View.OnTouchListener {
+public class VideoControllerView extends VideoBehaviorView implements View.OnTouchListener {
 
     public static final int DELAY_DISMISS_TIME = 4 * 1000; // 延迟消失事件
 
-    private static final int FINGER_BEHAVIOR_PROGRESS = 0x01;  //进度调节
-    private static final int FINGER_BEHAVIOR_VOLUME = 0x02;  //音量调节
-    private static final int FINGER_BEHAVIOR_BRIGHTNESS = 0x03;  //亮度调节
-
     private SurfaceView mSurfaceView;
+    private MediaController mediaController;
     private VideoPlayer mMediaPlayer;
-    private View mControllerBack;
-    private View mControllerTitle;
-    private TextView mVideoTitle;
-    private View mControllerBottom;
-    private SeekBar mPlayerSeekBar;
-    private ImageView mVideoPlayState;
-    private TextView mVideoProgress;
-    private TextView mVideoDuration;
-    private TextView mVideoRatio;
-    private TextView mVideoCatalog;
-    private ImageView mVideoFullScreen;
-    private VideoSystemView mSystemUI;
-    private VideoProgressDialog mProgressDialog;
-    private VideoCatalogDialog mCatalogDialog;
-    private VideoRatioDialog mRatioDialog;
-    private View mViewComplete;
-    private Button mViewCompleteBack;
-    private ImageView mScreenLock;
-    private VideoErrorView mErrorView;
-    private View mLoading;
-    private TextView mVideoChangeFluency;
-
-    private int mFingerBehavior;
-    private float mCurrentVolume; // 鉴于音量范围值比较小 使用float类型施舍五入处理.
-    private int mMaxVolume;
-    private int mCurrentBrightness, mMaxBrightness;
 
     private boolean isVideoPanelShowing; // 面板正在显示中
     private boolean mIsChangeFluency; // 正在切换清晰度
 
     private AudioManager mAudioManager;
-    private GestureDetector mGestureDetector;
     private boolean mIsScreenLock;
     private boolean mAllowUnWifiPlay;
     private boolean isPlayLocalVideo;
@@ -111,8 +82,6 @@ public class VideoControllerView extends FrameLayout implements GestureDetector.
 
         initPlayer();
         initControllerPanel();
-        mSystemUI = (VideoSystemView) findViewById(R.id.video_system);
-        mProgressDialog = (VideoProgressDialog) findViewById(R.id.video_progress_dialog);
         mCatalogDialog = (VideoCatalogDialog) findViewById(R.id.video_catalog_dialog);
         mRatioDialog = (VideoRatioDialog) findViewById(R.id.video_ratio_dialog);
         mRatioDialog.setOnVideoControlListener(new DefaultOnVideoControlListener() {
@@ -134,7 +103,6 @@ public class VideoControllerView extends FrameLayout implements GestureDetector.
             }
         });
 
-        mGestureDetector = new GestureDetector(getContext().getApplicationContext(), this);
         setOnTouchListener(this);
 
         //初始化音量和亮度.
@@ -898,123 +866,8 @@ public class VideoControllerView extends FrameLayout implements GestureDetector.
     }
 
     @Override
-    public boolean onDown(MotionEvent e) {
-        if (mIsScreenLock) {
-            return false;
-        }
-
-        //重置 手指行为
-        mFingerBehavior = -1;
-        mCurrentVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-        try {
-            mCurrentBrightness = (int) (((Activity) getContext()).getWindow().
-                    getAttributes().screenBrightness * mMaxBrightness);
-        } catch (Exception exception) {
-            exception.printStackTrace();
-        }
-        return false;
-    }
-
-    @Override
     public void onShowPress(MotionEvent e) {
 
-    }
-
-    @Override
-    public boolean onSingleTapUp(MotionEvent e) {
-        if (isVideoPanelShowing) {
-            dismissVideoPanel();
-        } else {
-            showVideoPanel();
-        }
-        return false;
-    }
-
-    @Override
-    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-        if (mIsScreenLock) {
-            return false;
-        }
-
-        final int width = getWidth();
-        final int height = getHeight();
-        if (width <= 0 || height <= 0) return false;
-
-        /**
-         * 根据手势起始2个点断言 后续行为. 规则如下:
-         *  屏幕切分为正X:
-         *  1.左右扇形区域为视频进度调节
-         *  2.上下扇形区域 左半屏亮度调节 后半屏音量调节.
-         */
-        if (mFingerBehavior < 0) {
-            float moveX = e2.getX() - e1.getX();
-            float moveY = e2.getY() - e1.getY();
-            if (Math.abs(moveX) >= Math.abs(moveY)) mFingerBehavior = FINGER_BEHAVIOR_PROGRESS;
-            else if (e1.getX() <= width / 2) mFingerBehavior = FINGER_BEHAVIOR_BRIGHTNESS;
-            else mFingerBehavior = FINGER_BEHAVIOR_VOLUME;
-        }
-
-        switch (mFingerBehavior) {
-            case FINGER_BEHAVIOR_PROGRESS: { // 进度变化
-                // 默认滑动一个屏幕 视频移动八分钟.
-                int delProgress = (int) (1.0f * distanceX / width * 480 * 1000);
-                // 更新快进弹框
-                mProgressDialog.updateSeekDialog(delProgress,
-                        mMediaPlayer.getCurrentPosition(),
-                        mMediaPlayer.getDuration());
-                break;
-            }
-            case FINGER_BEHAVIOR_VOLUME: { // 音量变化
-                float progress = mMaxVolume * (distanceY / height) + mCurrentVolume;
-
-                if (progress <= 0) progress = 0;
-                if (progress >= mMaxVolume) progress = mMaxVolume;
-
-                mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, Math.round(progress), 0);
-                mSystemUI.show(VideoSystemView.SYSTEM_UI_VOLUME, mMaxVolume, Math.round(progress));
-
-                mCurrentVolume = progress;
-                break;
-            }
-            case FINGER_BEHAVIOR_BRIGHTNESS: { // 亮度变化
-                try {
-                    if (Settings.System.getInt(getContext().getContentResolver(), Settings.System.SCREEN_BRIGHTNESS_MODE)
-                            == Settings.System.SCREEN_BRIGHTNESS_MODE_AUTOMATIC) {
-                        Settings.System.putInt(getContext().getContentResolver(), Settings.System.SCREEN_BRIGHTNESS_MODE,
-                                Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL);
-                    }
-
-                    int progress = (int) (mMaxBrightness * (distanceY / height) + mCurrentBrightness);
-
-                    if (progress <= 0) progress = 0;
-                    if (progress >= mMaxBrightness) progress = mMaxBrightness;
-
-                    Window window = ((Activity) getContext()).getWindow();
-                    WindowManager.LayoutParams params = window.getAttributes();
-                    params.screenBrightness = progress / (float) mMaxBrightness;
-                    window.setAttributes(params);
-
-                    mSystemUI.show(VideoSystemView.SYSTEM_UI_BRIGHTNESS, mMaxBrightness, progress);
-
-                    mCurrentBrightness = progress;
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                break;
-            }
-        }
-
-        return false;
-    }
-
-    @Override
-    public void onLongPress(MotionEvent e) {
-
-    }
-
-    @Override
-    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-        return false;
     }
 
     private OnVideoControlListener onVideoControlListener;

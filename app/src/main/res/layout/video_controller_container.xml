@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -9,87 +9,14 @@
         android:layout_height="match_parent" />
 
     <include
-        android:id="@+id/video_controller_bottom"
-        layout="@layout/video_controller_bottom" />
-
-    <TextView
-        android:id="@+id/video_change_fluency"
-        android:layout_width="wrap_content"
-        android:layout_height="25dp"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="48dp"
-        android:layout_marginLeft="16dp"
-        android:background="@drawable/correct_bg_video_controller"
-        android:gravity="center"
-        android:minWidth="162dp"
-        android:textColor="#FFFFFFFF"
-        android:textSize="11sp"
-        android:visibility="gone" />
-
-    <ImageView
-        android:id="@+id/player_lock_screen"
-        android:layout_width="44dp"
-        android:layout_height="44dp"
-        android:layout_centerVertical="true"
-        android:layout_marginLeft="24dp"
-        android:src="@drawable/video_unlock"
-        android:visibility="gone" />
-
-    <com.boredream.videoplayer.video.VideoSystemView
-        android:id="@+id/video_system"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-    </com.boredream.videoplayer.video.VideoSystemView>
-
-    <com.boredream.videoplayer.video.VideoProgressDialog
-        android:id="@+id/video_progress_dialog"
-        android:layout_width="132dp"
-        android:layout_height="80dp"
-        android:layout_centerInParent="true"
-        android:visibility="gone">
-
-    </com.boredream.videoplayer.video.VideoProgressDialog>
-
-    <include
-        android:id="@+id/video_controller_complete"
-        layout="@layout/video_controller_complete" />
-
-    <com.boredream.videoplayer.video.VideoErrorView
-        android:id="@+id/video_controller_error"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
-
-    <include
         android:id="@+id/video_controller_loading"
         layout="@layout/video_controller_loading" />
 
-    <include
-        android:id="@+id/video_controller_title"
-        layout="@layout/video_controller_title" />
-
-    <ImageView
-        android:id="@+id/video_back"
-        android:layout_width="34dp"
-        android:layout_height="34dp"
-        android:layout_alignTop="@id/video_controller_title"
-        android:padding="10dp"
-        android:src="@drawable/ic_back_white" />
-
-    <com.boredream.videoplayer.video.VideoCatalogDialog
-        android:id="@+id/video_catalog_dialog"
+    <com.boredream.videoplayer.video.MediaController
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone">
+        android:layout_height="match_parent">
 
-    </com.boredream.videoplayer.video.VideoCatalogDialog>
+    </com.boredream.videoplayer.video.MediaController>
 
-    <com.boredream.videoplayer.video.VideoRatioDialog
-        android:id="@+id/video_ratio_dialog"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="gone">
 
-    </com.boredream.videoplayer.video.VideoRatioDialog>
-
-</RelativeLayout>
+</FrameLayout>

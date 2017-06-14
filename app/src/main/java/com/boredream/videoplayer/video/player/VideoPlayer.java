@@ -87,6 +87,7 @@ public class VideoPlayer {
             player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mp) {
+                    curStatus = STATE_PLAYBACK_COMPLETED;
                     if (callback != null) callback.onCompletion(mp);
                 }
             });
