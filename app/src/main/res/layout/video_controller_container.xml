@@ -9,10 +9,11 @@
         android:layout_height="match_parent" />
 
     <include
-        android:id="@+id/video_controller_loading"
+        android:id="@+id/video_loading"
         layout="@layout/video_controller_loading" />
 
     <com.boredream.videoplayer.video.MediaController
+        android:id="@+id/video_controller"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 

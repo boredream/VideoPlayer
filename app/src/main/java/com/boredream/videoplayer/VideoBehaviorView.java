@@ -58,15 +58,15 @@ public class VideoBehaviorView extends FrameLayout implements GestureDetector.On
     }
 
     protected void updateSeekUI(int delProgress) {
-
+        // TODO: 2017/6/14  
     }
 
     protected void updateVolumeUI(int maxVolume, int curVolume) {
-
+        // TODO: 2017/6/14  
     }
 
     protected void updateLightUI(int maxLight, int curLight) {
-
+        // TODO: 2017/6/14  
     }
 
     @Override
@@ -95,12 +95,6 @@ public class VideoBehaviorView extends FrameLayout implements GestureDetector.On
 
     @Override
     public boolean onSingleTapUp(MotionEvent e) {
-        // TODO: 2017/6/14  
-//        if (isVideoPanelShowing) {
-//            dismissVideoPanel();
-//        } else {
-//            showVideoPanel();
-//        }
         return false;
     }
 

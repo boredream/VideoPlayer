@@ -1,57 +1,29 @@
 package com.boredream.videoplayer.video;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.res.Configuration;
-import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.provider.Settings;
-import android.text.SpannableString;
-import android.text.TextUtils;
-import android.text.style.ForegroundColorSpan;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.widget.SeekBar;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.boredream.videoplayer.R;
 import com.boredream.videoplayer.VideoBehaviorView;
 import com.boredream.videoplayer.video.bean.VideoDetailInfo;
 import com.boredream.videoplayer.video.player.SimplePlayerCallback;
 import com.boredream.videoplayer.video.player.VideoPlayer;
-import com.boredream.videoplayer.video.utils.DisplayUtils;
-import com.boredream.videoplayer.video.utils.NetworkUtils;
-import com.boredream.videoplayer.video.utils.ScreenUtils;
-import com.boredream.videoplayer.video.utils.StringUtils;
 
-public class VideoControllerView extends VideoBehaviorView implements View.OnTouchListener {
-
-    public static final int DELAY_DISMISS_TIME = 4 * 1000; // 延迟消失事件
+public class VideoControllerView extends VideoBehaviorView {
 
     private SurfaceView mSurfaceView;
+    private View mLoading;
     private MediaController mediaController;
     private VideoPlayer mMediaPlayer;
 
-    private boolean isVideoPanelShowing; // 面板正在显示中
-    private boolean mIsChangeFluency; // 正在切换清晰度
-
-    private AudioManager mAudioManager;
     private boolean mIsScreenLock;
-    private boolean mAllowUnWifiPlay;
     private boolean isPlayLocalVideo;
     private VideoDetailInfo video;
 
@@ -79,36 +51,10 @@ public class VideoControllerView extends VideoBehaviorView implements View.OnTou
         inflater.inflate(R.layout.video_controller_container, this);
 
         mSurfaceView = (SurfaceView) findViewById(R.id.video_surface);
+        mLoading = findViewById(R.id.video_loading);
+        mediaController = (MediaController) findViewById(R.id.video_controller);
 
         initPlayer();
-        initControllerPanel();
-        mCatalogDialog = (VideoCatalogDialog) findViewById(R.id.video_catalog_dialog);
-        mRatioDialog = (VideoRatioDialog) findViewById(R.id.video_ratio_dialog);
-        mRatioDialog.setOnVideoControlListener(new DefaultOnVideoControlListener() {
-            @Override
-            public void onRatioSelected(String fluency) {
-                mRatioDialog.hide();
-                if (onVideoControlListener != null) {
-                    onVideoControlListener.onRatioSelected(fluency);
-                }
-            }
-        });
-        mCatalogDialog.setOnVideoControlListener(new DefaultOnVideoControlListener() {
-            @Override
-            public void onCatalogItemSelected(int videoIndex) {
-                mCatalogDialog.hide();
-                if (onVideoControlListener != null) {
-                    onVideoControlListener.onCatalogItemSelected(videoIndex);
-                }
-            }
-        });
-
-        setOnTouchListener(this);
-
-        //初始化音量和亮度.
-        mAudioManager = (AudioManager) (getContext().getSystemService(Context.AUDIO_SERVICE));
-        mMaxVolume = mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
-        mMaxBrightness = 255;
 
         mSurfaceView.getHolder().addCallback(new SurfaceHolder.Callback() {
             @Override
@@ -130,283 +76,7 @@ public class VideoControllerView extends VideoBehaviorView implements View.OnTou
                 release();
             }
         });
-
-        showVideoPanel();
     }
-
-    public void startUpdateFluency(String fluency) {
-        mIsChangeFluency = true;
-
-        String fluencyTitle = VideoFluencyConstants.getFluencyTitle(fluency);
-        String str = String.format("正在切换到%s，请稍候... ", fluencyTitle);
-        SpannableString ss = new SpannableString(str);
-        ForegroundColorSpan colorSpan = new ForegroundColorSpan(0xFFFD7D6F);
-        ss.setSpan(colorSpan, 5, 5 + fluencyTitle.length(), SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-        mVideoChangeFluency.setVisibility(View.VISIBLE);
-        mVideoChangeFluency.setText(ss);
-    }
-
-    public void completeUpdateFluency(String fluency) {
-        mIsChangeFluency = false;
-
-        String fluencyTitle = VideoFluencyConstants.getFluencyTitle(fluency);
-        String str = String.format("提醒您已切换到%s", fluencyTitle);
-        SpannableString ss = new SpannableString(str);
-        ForegroundColorSpan colorSpan = new ForegroundColorSpan(0xFFFD7D6F);
-        ss.setSpan(colorSpan, 7, 7 + fluencyTitle.length(), SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-        mVideoRatio.setText(fluencyTitle);
-        mVideoChangeFluency.setVisibility(View.VISIBLE);
-        mVideoChangeFluency.setText(ss);
-    }
-
-    private void initControllerPanel() {
-        // back
-        mControllerBack = findViewById(R.id.video_back);
-        mControllerBack.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (onVideoControlListener != null) {
-                    onVideoControlListener.onBack();
-                }
-            }
-        });
-        // top
-        mControllerTitle = findViewById(R.id.video_controller_title);
-        mVideoTitle = (TextView) mControllerTitle.findViewById(R.id.video_title);
-        // bottom
-        mControllerBottom = findViewById(R.id.video_controller_bottom);
-        mPlayerSeekBar = (SeekBar) mControllerBottom.findViewById(R.id.player_seek_bar);
-        mVideoPlayState = (ImageView) mControllerBottom.findViewById(R.id.player_pause);
-        mVideoProgress = (TextView) mControllerBottom.findViewById(R.id.player_progress);
-        mVideoDuration = (TextView) mControllerBottom.findViewById(R.id.player_duration);
-        mVideoRatio = (TextView) mControllerBottom.findViewById(R.id.video_ratio);
-        mVideoCatalog = (TextView) mControllerBottom.findViewById(R.id.video_catalog);
-        mVideoFullScreen = (ImageView) mControllerBottom.findViewById(R.id.video_full_screen);
-        mVideoPlayState.setOnClickListener(mOnPlayerPauseClick);
-        mVideoPlayState.setImageResource(R.drawable.ic_video_pause);
-        mPlayerSeekBar.setOnSeekBarChangeListener(mSeekBarListener);
-        mVideoRatio.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mRatioDialog.show();
-            }
-        });
-        mVideoCatalog.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mCatalogDialog.show(video);
-            }
-        });
-        mVideoFullScreen.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (onVideoControlListener != null) {
-                    onVideoControlListener.onFullScreen();
-                }
-            }
-        });
-
-        // lock
-        mScreenLock = (ImageView) findViewById(R.id.player_lock_screen);
-        mScreenLock.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mIsScreenLock) unlock();
-                else lock();
-
-                showVideoPanel();
-            }
-        });
-
-        // complete
-        mViewComplete = findViewById(R.id.video_controller_complete);
-        mViewCompleteBack = (Button) findViewById(R.id.video_controller_complete_back);
-        mViewCompleteBack.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                hideComplete();
-
-                if (onVideoControlListener != null) {
-                    onVideoControlListener.onExit();
-                }
-            }
-        });
-
-        // error
-        mErrorView = (VideoErrorView) findViewById(R.id.video_controller_error);
-        mErrorView.setOnVideoControlListener(new DefaultOnVideoControlListener() {
-            @Override
-            public void onRetry(int status) {
-                retry(status);
-            }
-        });
-
-        // loading
-        mLoading = findViewById(R.id.video_controller_loading);
-
-        // change
-        mVideoChangeFluency = (TextView) findViewById(R.id.video_change_fluency);
-    }
-
-//    @Subscribe(threadMode = ThreadMode.MAIN)
-//    public void onNetWorkChanged(NetChangeEvent event) {
-//        if (event == null) {
-//            return;
-//        }
-//
-//        checkShowError(true);
-//    }
-
-    /**
-     * 判断显示错误类型
-     */
-    public void checkShowError(boolean isNetChanged) {
-        boolean isConnect = NetworkUtils.isNetworkConnected(getContext());
-        boolean isMobileNet = NetworkUtils.isMobileConnected(getContext());
-        boolean isWifiNet = NetworkUtils.isWifiConnected(getContext());
-
-        if (isConnect) {
-            // 如果已经联网
-            if (mErrorView.getCurStatus() == VideoErrorView.STATUS_NO_NETWORK_ERROR && !(isMobileNet && !isWifiNet)) {
-                // 如果之前是无网络，应该提示“网络已经重新连上，请重试”，这里暂不处理
-            } else if (video == null) {
-                // 优先判断是否有video数据
-                showError(VideoErrorView.STATUS_VIDEO_DETAIL_ERROR);
-            } else if (isMobileNet && !isWifiNet && !mAllowUnWifiPlay && !isPlayLocalVideo) {
-                // 如果是手机流量，且未同意过播放，且非本地视频，则提示错误
-                mErrorView.showError(VideoErrorView.STATUS_UN_WIFI_ERROR);
-
-                if (isNetChanged) {
-                    mMediaPlayer.pause();
-                } else {
-                    mMediaPlayer.stop();
-                }
-            } else if (isWifiNet && isNetChanged && mErrorView.getCurStatus() == VideoErrorView.STATUS_UN_WIFI_ERROR) {
-                // 如果是wifi流量，且之前是非wifi错误，则恢复播放
-                playFromUnWifiError();
-            } else if (!isNetChanged) {
-                showError(VideoErrorView.STATUS_VIDEO_SRC_ERROR);
-            }
-        } else if (!isPlayLocalVideo) {
-            // 没网，且不是本地视频，则提示网络错误
-            showError(VideoErrorView.STATUS_NO_NETWORK_ERROR);
-        }
-    }
-
-    private void showError(int status) {
-        mErrorView.showError(status);
-        dismissVideoPanel();
-        hideLoading();
-        hideComplete();
-        if (mMediaPlayer != null) {
-            mMediaPlayer.stop();
-        }
-
-        // 如果提示了错误，则看需要解锁
-        if (mIsScreenLock) {
-            unlock();
-        }
-    }
-
-    private void allowUnWifiPlay() {
-        Log.i("DDD", "allowUnWifiPlay");
-        mAllowUnWifiPlay = true;
-
-        playFromUnWifiError();
-    }
-
-    private void playFromUnWifiError() {
-        Log.i("DDD", "playFromUnWifiError");
-
-        if (mMediaPlayer != null && video != null) {
-            String dataSource = mMediaPlayer.getVideoPath();
-            if (TextUtils.isEmpty(dataSource)) {
-                startPlayVideo(video);
-            } else {
-                playerStart();
-            }
-        }
-    }
-
-    private void retry(int status) {
-        Log.i("DDD", "retry " + status);
-
-        switch (status) {
-            case VideoErrorView.STATUS_VIDEO_DETAIL_ERROR:
-                // 传递给activity
-                if (onVideoControlListener != null) {
-                    onVideoControlListener.onRetry(status);
-                }
-                break;
-            case VideoErrorView.STATUS_VIDEO_SRC_ERROR:
-                reload();
-                break;
-            case VideoErrorView.STATUS_UN_WIFI_ERROR:
-                allowUnWifiPlay();
-                break;
-            case VideoErrorView.STATUS_NO_NETWORK_ERROR:
-                // 无网络时
-                if (NetworkUtils.isNetworkConnected(getContext())) {
-                    if (video == null) {
-                        // 如果video为空，重新请求详情
-                        retry(VideoErrorView.STATUS_VIDEO_DETAIL_ERROR);
-                    } else {
-                        // 如果有video，重新加载视频资源
-                        reload();
-                    }
-                } else {
-                    Toast.makeText(getContext(), "没有网络", Toast.LENGTH_SHORT).show();
-                }
-                break;
-        }
-    }
-
-    public void showComplete() {
-        if (mIsScreenLock) {
-            unlock();
-        }
-        mViewComplete.setVisibility(View.VISIBLE);
-        dismissVideoPanel();
-    }
-
-    public void hideComplete() {
-        mViewComplete.setVisibility(View.GONE);
-    }
-
-    private OnClickListener mOnPlayerPauseClick = new OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            if (mMediaPlayer.isPlaying()) {
-                playerPause();
-            } else {
-                playerStart();
-            }
-        }
-    };
-
-    private boolean isDragSeeking; // 进度条正在手动拖动
-    private SeekBar.OnSeekBarChangeListener mSeekBarListener = new SeekBar.OnSeekBarChangeListener() {
-        @Override
-        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-            if (fromUser) {
-                isDragSeeking = true;
-            }
-        }
-
-        @Override
-        public void onStartTrackingTouch(SeekBar seekBar) {
-            // TODO: 2017/6/7 progress暂停变化
-        }
-
-        @Override
-        public void onStopTrackingTouch(SeekBar seekBar) {
-            isDragSeeking = false;
-            seekComplete(seekBar.getProgress());
-            delayDismissVideoPanel();
-        }
-    };
 
     private void initPlayer() {
         mMediaPlayer = new VideoPlayer();
@@ -416,50 +86,9 @@ public class VideoControllerView extends VideoBehaviorView implements View.OnTou
             @Override
             public void onPrepared(MediaPlayer mp) {
                 super.onPrepared(mp);
-                preparedComplete();
+                playerStart();
             }
         });
-    }
-
-    @Override
-    protected void onConfigurationChanged(Configuration newConfig) {
-        Log.i("DDD", "onConfigurationChanged ... isPor = " + ScreenUtils.isPortrait(getContext()));
-        super.onConfigurationChanged(newConfig);
-        toggleVideoLayoutParams();
-    }
-
-    void toggleVideoLayoutParams() {
-        final boolean isPortrait = ScreenUtils.isPortrait(getContext());
-
-        if (isPortrait) {
-            mControllerBack.setVisibility(VISIBLE);
-
-            ((RelativeLayout.LayoutParams) mControllerTitle.getLayoutParams()).topMargin = 0;
-            mVideoRatio.setVisibility(GONE);
-            mVideoCatalog.setVisibility(GONE);
-            mVideoFullScreen.setVisibility(VISIBLE);
-
-            mCatalogDialog.setVisibility(GONE);
-            mRatioDialog.setVisibility(GONE);
-
-            mScreenLock.setVisibility(GONE);
-
-            ((LinearLayout.LayoutParams) mViewCompleteBack.getLayoutParams()).topMargin =
-                    DisplayUtils.dp2px(getContext(), 26);
-        } else {
-            ((RelativeLayout.LayoutParams) mControllerTitle.getLayoutParams()).topMargin =
-                    DisplayUtils.dp2px(getContext(), 10);
-            mVideoRatio.setVisibility(isPlayLocalVideo ? GONE : VISIBLE);
-            mVideoCatalog.setVisibility(VISIBLE);
-            mVideoFullScreen.setVisibility(GONE);
-
-            if (isVideoPanelShowing) {
-                mScreenLock.setVisibility(VISIBLE);
-            }
-
-            ((LinearLayout.LayoutParams) mViewCompleteBack.getLayoutParams()).topMargin =
-                    DisplayUtils.dp2px(getContext(), 46);
-        }
     }
 
     private void showLoading() {
@@ -484,104 +113,7 @@ public class VideoControllerView extends VideoBehaviorView implements View.OnTou
         } else {
             reConnect = 0;
             reConnectPosition = 0;
-            checkShowError(false);
-        }
-    }
-
-    private boolean mIsComplete = false;
-//    private SetListener mMediaPlayStatus = (key, value, kv) -> {
-//        String str = null;
-//        mIsComplete = false;
-//        switch (NumberUtils.string2Int(value)) {
-//            case QbParameters.PLAY_STATUS_ERROR:
-//                str = "出错";
-//                hideLoading();
-//
-//                reConnect();
-//                break;
-//            case QbParameters.PLAY_STATUS_IDLE: // "空闲"
-//                // do nothing
-//                break;
-//            case QbParameters.PLAY_STATUS_PAUSE:
-//                str = "暂停中";
-//                break;
-//            case QbParameters.PLAY_STATUS_COMPLETION:
-//                reConnect = 0;
-//                onPlayComplete();
-//                str = "完成";
-//                break;
-//            case QbParameters.PLAY_STATUS_PLAYING:
-//                reConnect = 0;
-//                str = "播放中";
-//                break;
-//            case QbParameters.PLAY_STATUS_PREPARED:
-//                reConnect = 0;
-//                str = "准备完成";
-//                preparedComplete();
-//
-//                long progress = 0;
-//                if (reConnectPosition > 0) {
-//                    progress = reConnectPosition;
-//                }
-//                if (progress > 0 && progress < mMediaPlayer.getDuration()) {
-//                    mMediaPlayer.seekTo(progress);
-//                }
-//                reConnectPosition = 0;
-//
-//                break;
-//            case QbParameters.PLAY_STATUS_PREPARING:
-//                showLoading();
-//                str = "准备中";
-//                break;
-//        }
-//
-//        if (!TextUtils.isEmpty(str)) {
-//            Log.i("DDD", "onSet: " + str);
-//        }
-//    };
-
-    /**
-     * 准备完成，开始播放
-     */
-    private void preparedComplete() {
-        toggleVideoLayoutParams();
-
-        playerStart();
-
-        AudioManager am = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
-        am.requestAudioFocus(null, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
-
-        // 回播设置进度.
-        if (mControllerBottom != null) initPlayerSeekBar();
-    }
-
-    public void initPlayerSeekBar() {
-        if (mMediaPlayer == null) return;
-
-        final long currentPosition = mMediaPlayer.getCurrentPosition();
-        final long duration = mMediaPlayer.getDuration();
-        if (!isDragSeeking) {
-            mPlayerSeekBar.setProgress((int) currentPosition);
-        }
-        mPlayerSeekBar.setMax((int) duration);
-        mVideoDuration.setText(StringUtils.millSecondsToString((int) duration));
-    }
-
-    //播放完成
-    private void onPlayComplete() {
-        // 播放结束 重置 控制器状态.
-        mVideoProgress.setText(StringUtils.millSecondsToString((int) mMediaPlayer.getDuration()));
-        if (!isDragSeeking) {
-            mPlayerSeekBar.setProgress(mPlayerSeekBar.getMax());
-        }
-        mVideoPlayState.setImageResource(R.drawable.ic_video_play);
-
-//        mWeakReferenceHandler.cancel();
-
-        mIsComplete = true;
-
-        if (onVideoControlListener != null) {
-            onVideoControlListener.onComplete();
+//            checkShowError(false);
         }
     }
 
@@ -629,8 +161,6 @@ public class VideoControllerView extends VideoBehaviorView implements View.OnTou
 
         video = null;
         reset();
-
-        checkShowError(false);
     }
 
     /**
@@ -642,9 +172,6 @@ public class VideoControllerView extends VideoBehaviorView implements View.OnTou
         }
 
         this.video = video;
-
-        mVideoTitle.setText(video.vedioTitle);
-        mRatioDialog.setVideo(video);
 
         // TODO: 2017/6/13
 //        isPlayLocalVideo = startWithLocal;
@@ -710,7 +237,6 @@ public class VideoControllerView extends VideoBehaviorView implements View.OnTou
         if (mMediaPlayer != null) {
             mMediaPlayer.stop();
         }
-        mIsComplete = false;
         isPlayLocalVideo = false;
         reConnect = 0;
         reConnectPosition = 0;
@@ -718,8 +244,8 @@ public class VideoControllerView extends VideoBehaviorView implements View.OnTou
 
     private void playerPause() {
         if (mMediaPlayer == null) return;
-        mVideoPlayState.setImageResource(R.drawable.ic_video_play);
         mMediaPlayer.pause();
+        Log.i("DDD", "playerPause");
 
         // TODO: 2017/6/7 暂停的时候控件不隐藏
 //        mWeakReferenceHandler.cancel();
@@ -728,27 +254,10 @@ public class VideoControllerView extends VideoBehaviorView implements View.OnTou
     private void playerStart() {
         if (mMediaPlayer == null) return;
 
+        reset();
+
+        mMediaPlayer.start();
         Log.i("DDD", "playerStart");
-
-        mVideoPlayState.setImageResource(R.drawable.ic_video_pause);
-        mVideoRatio.setText(VideoFluencyConstants.getFluencyTitle(video.getCurDefinition()));
-        if (mIsChangeFluency) {
-            completeUpdateFluency(video.getCurDefinition());
-        }
-
-        if (mIsComplete) {
-            reload();
-        }
-
-        hideComplete();
-        hideLoading();
-        mErrorView.hideError();
-
-        if (!mMediaPlayer.isPlaying()) // TODO: 2017/6/13 check me 
-            mMediaPlayer.start();
-
-//        mWeakReferenceHandler.start();
-        showVideoPanel();
     }
 
     private void reload() {
@@ -759,115 +268,10 @@ public class VideoControllerView extends VideoBehaviorView implements View.OnTou
         showLoading();
     }
 
-    public void updatePlayProgress() {
-        long currentPosition = mMediaPlayer.getCurrentPosition();
-        long duration = mMediaPlayer.getDuration();
-        if (duration <= 0) return;
-        float ratio = (float) currentPosition / duration;
-        int pos = (int) (mPlayerSeekBar.getMax() * ratio);
-        if (currentPosition <= duration)
-            mVideoProgress.setText(StringUtils.millSecondsToString((int) currentPosition));
-        if (!isDragSeeking) {
-            mPlayerSeekBar.setProgress(pos);
-        }
-        mPlayerSeekBar.setMax((int) duration);
-        mVideoDuration.setText(StringUtils.millSecondsToString((int) duration));
-
-        // TODO: 2017/6/13  
-        int cachePosition = (int) (mMediaPlayer.getBufferPercentage() + currentPosition);
-        mPlayerSeekBar.setSecondaryProgress(cachePosition);
-    }
-
-    private void lock() {
-        Log.i("DDD", "lock");
-        mIsScreenLock = true;
-        mScreenLock.setImageResource(R.drawable.video_locked);
-    }
-
-    private void unlock() {
-        Log.i("DDD", "unlock");
-        mIsScreenLock = false;
-        mScreenLock.setImageResource(R.drawable.video_unlock);
-    }
-
-    private void showVideoPanel() {
-        // Log.i("DDD", "showVideoPanel");
-        isVideoPanelShowing = true;
-        if (!mIsScreenLock) {
-            mControllerBack.setVisibility(VISIBLE);
-            mControllerTitle.setVisibility(VISIBLE);
-            mControllerBottom.setVisibility(VISIBLE);
-        } else {
-            if (!ScreenUtils.isPortrait(getContext())) {
-                mControllerBack.setVisibility(GONE);
-            }
-            mControllerTitle.setVisibility(GONE);
-            mControllerBottom.setVisibility(GONE);
-        }
-
-        if (!ScreenUtils.isPortrait(getContext())) {
-            mScreenLock.setVisibility(VISIBLE);
-        }
-
-        delayDismissVideoPanel();
-    }
-
-    private void dismissVideoPanel() {
-        if (!ScreenUtils.isPortrait(getContext())) {
-            // 横屏才消失
-            mControllerBack.setVisibility(GONE);
-        }
-        mControllerTitle.setVisibility(GONE);
-        mControllerBottom.setVisibility(GONE);
-        mScreenLock.setVisibility(GONE);
-
-        isVideoPanelShowing = false;
-    }
-
-    private void delayDismissVideoPanel() {
-        // Log.i("DDD", "delayDismissVideoPanel");
-        // 延迟消失
-//        mWeakReferenceHandler.removeCallbacks(mDisappearRunnable);
-//        mWeakReferenceHandler.postDelayed(mDisappearRunnable, DELAY_DISMISS_TIME);
-    }
-
     @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        mGestureDetector.onTouchEvent(event);
-
-        if (event.getAction() == MotionEvent.ACTION_UP ||
-                event.getAction() == MotionEvent.ACTION_CANCEL ||
-                event.getAction() == MotionEvent.ACTION_OUTSIDE) {
-            mSystemUI.hide();
-
-            // 快进结束，开始seek
-            if (event.getAction() == MotionEvent.ACTION_UP &&
-                    mProgressDialog.getVisibility() == VISIBLE) {
-                int newProgress = mProgressDialog.getProgress(mMediaPlayer.getDuration());
-                if (newProgress >= 0) {
-                    seekComplete(newProgress);
-                }
-            }
-            mProgressDialog.hide();
-        }
-        return true;
-    }
-
-    /**
-     * 拖动结束，开始seekto操作
-     *
-     * @param newProgress 新的进度
-     */
-    private void seekComplete(int newProgress) {
-        if (mIsComplete) {
-            reload();
-        }
-        mMediaPlayer.seekTo(newProgress);
-    }
-
-    @Override
-    public void onShowPress(MotionEvent e) {
-
+    public boolean onSingleTapUp(MotionEvent e) {
+        mediaController.toggleDisplay();
+        return super.onSingleTapUp(e);
     }
 
     private OnVideoControlListener onVideoControlListener;
