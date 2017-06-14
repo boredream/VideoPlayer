@@ -276,7 +276,7 @@ public class VideoControllerViewMock extends FrameLayout implements GestureDetec
         });
 
         // loading
-        mLoading = findViewById(R.id.video_controller_loading);
+        mLoading = findViewById(R.id.video_loading);
 
         // change
         mVideoChangeFluency = (TextView) findViewById(R.id.video_change_fluency);

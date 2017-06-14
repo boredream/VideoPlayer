@@ -4,6 +4,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.util.Log;
 import android.view.SurfaceHolder;
+import android.widget.VideoView;
 
 import java.io.IOException;
 
@@ -154,6 +155,7 @@ public class VideoPlayer {
             player.stop();
             player.release();
             player = null;
+            surfaceHolder = null;
             curStatus = STATE_IDLE;
 //            AudioManager am = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
 //            am.abandonAudioFocus(null);

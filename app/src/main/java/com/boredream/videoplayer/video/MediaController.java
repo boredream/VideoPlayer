@@ -3,10 +3,10 @@ package com.boredream.videoplayer.video;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.text.SpannableString;
-import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
@@ -19,11 +19,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.boredream.videoplayer.R;
+import com.boredream.videoplayer.video.player.VideoPlayer;
 import com.boredream.videoplayer.video.utils.DisplayUtils;
 import com.boredream.videoplayer.video.utils.NetworkUtils;
 import com.boredream.videoplayer.video.utils.ScreenUtils;
 
 import java.util.Locale;
+import java.util.zip.Inflater;
 
 /**
  * 视频控制器，可替换或自定义样式
@@ -49,12 +51,11 @@ public class MediaController extends FrameLayout {
     private Button mViewCompleteBack;
     private ImageView mScreenLock;
     private VideoErrorView mErrorView;
-    private View mLoading;
     private TextView mVideoChangeFluency;
 
     private boolean isScreenLock;
     private boolean mShowing;
-    private android.widget.MediaController.MediaPlayerControl mPlayer;
+    private VideoPlayer mPlayer;
 
     public MediaController(Context context) {
         super(context);
@@ -72,6 +73,8 @@ public class MediaController extends FrameLayout {
     }
 
     private void init() {
+        LayoutInflater.from(getContext()).inflate(R.layout.video_media_controller, this);
+
         initControllerPanel();
 
         mCatalogDialog = (VideoCatalogDialog) findViewById(R.id.video_catalog_dialog);
@@ -183,9 +186,6 @@ public class MediaController extends FrameLayout {
             }
         });
 
-        // loading
-        mLoading = findViewById(R.id.video_controller_loading);
-
         // change
         mVideoChangeFluency = (TextView) findViewById(R.id.video_change_fluency);
     }
@@ -202,7 +202,7 @@ public class MediaController extends FrameLayout {
         }
     };
 
-    public void setMediaPlayer(android.widget.MediaController.MediaPlayerControl player) {
+    public void setMediaPlayer(VideoPlayer player) {
         mPlayer = player;
         updatePausePlay();
     }
@@ -437,9 +437,9 @@ public class MediaController extends FrameLayout {
 
             long duration = mPlayer.getDuration();
             long newposition = (duration * progress) / 1000L;
-            mPlayer.seekTo( (int) newposition);
+            mPlayer.seekTo((int) newposition);
             if (mVideoProgress != null) {
-                mVideoProgress.setText(stringForTime( (int) newposition));
+                mVideoProgress.setText(stringForTime((int) newposition));
             }
         }
 

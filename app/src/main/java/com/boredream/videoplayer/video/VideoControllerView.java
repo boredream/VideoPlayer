@@ -62,6 +62,7 @@ public class VideoControllerView extends VideoBehaviorView {
                 Log.i("DDD", "surfaceCreated: ");
                 if(mMediaPlayer != null) {
                     mMediaPlayer.setDisplay(holder);
+                    mMediaPlayer.openVideo();
                 }
             }
 
@@ -86,9 +87,10 @@ public class VideoControllerView extends VideoBehaviorView {
             @Override
             public void onPrepared(MediaPlayer mp) {
                 super.onPrepared(mp);
-                playerStart();
+                mMediaPlayer.start();
             }
         });
+        mediaController.setMediaPlayer(mMediaPlayer);
     }
 
     private void showLoading() {
