@@ -12,7 +12,6 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -54,6 +53,12 @@ public class MediaController extends FrameLayout {
     private boolean isScreenLock;
     private boolean mShowing;
     private VideoPlayer mPlayer;
+
+    private OnVideoControlListener onVideoControlListener;
+
+    public void setOnVideoControlListener(OnVideoControlListener onVideoControlListener) {
+        this.onVideoControlListener = onVideoControlListener;
+    }
 
     public MediaController(Context context) {
         super(context);
@@ -143,9 +148,9 @@ public class MediaController extends FrameLayout {
         mVideoFullScreen.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-//                if (onVideoControlListener != null) {
-//                    onVideoControlListener.onFullScreen();
-//                }
+                if (onVideoControlListener != null) {
+                    onVideoControlListener.onFullScreen();
+                }
             }
         });
 
@@ -573,7 +578,6 @@ public class MediaController extends FrameLayout {
         if (isPortrait) {
             mControllerBack.setVisibility(VISIBLE);
 
-            ((RelativeLayout.LayoutParams) mControllerTitle.getLayoutParams()).topMargin = 0;
             mVideoRatio.setVisibility(GONE);
             mVideoCatalog.setVisibility(GONE);
             mVideoFullScreen.setVisibility(VISIBLE);
@@ -586,8 +590,6 @@ public class MediaController extends FrameLayout {
             ((LinearLayout.LayoutParams) mViewCompleteBack.getLayoutParams()).topMargin =
                     DisplayUtils.dp2px(getContext(), 26);
         } else {
-            ((RelativeLayout.LayoutParams) mControllerTitle.getLayoutParams()).topMargin =
-                    DisplayUtils.dp2px(getContext(), 10);
 //            mVideoRatio.setVisibility(isPlayLocalVideo ? GONE : VISIBLE);
             mVideoCatalog.setVisibility(VISIBLE);
             mVideoFullScreen.setVisibility(GONE);

@@ -10,12 +10,12 @@ public class SimplePlayerCallback implements PlayerCallback {
     }
 
     @Override
-    public void onVideoSizeChanged(MediaPlayer mp, int width, int height) {
+    public void onBufferingUpdate(MediaPlayer mp, int percent) {
 
     }
 
     @Override
-    public void onBufferingUpdate(MediaPlayer mp, int percent) {
+    public void onVideoSizeChanged(MediaPlayer mp, int width, int height) {
 
     }
 

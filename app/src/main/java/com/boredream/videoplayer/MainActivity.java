@@ -4,8 +4,6 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
-import com.boredream.videoplayer.video.VideoControllerView;
-import com.boredream.videoplayer.video.VideoDetailActivity;
 import com.boredream.videoplayer.video.bean.VideoDetailInfo;
 import com.boredream.videoplayer.video.utils.MockUtils;
 

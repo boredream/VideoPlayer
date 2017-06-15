@@ -1,6 +1,7 @@
 package com.boredream.videoplayer.video;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.media.MediaPlayer;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -26,6 +27,8 @@ public class VideoControllerView extends VideoBehaviorView {
     private boolean mIsScreenLock;
     private boolean isPlayLocalVideo;
     private VideoDetailInfo video;
+    private int initWidth;
+    private int initHeight;
 
     public boolean isLocked() {
         return mIsScreenLock;
@@ -60,7 +63,11 @@ public class VideoControllerView extends VideoBehaviorView {
             @Override
             public void surfaceCreated(SurfaceHolder holder) {
                 Log.i("DDD", "surfaceCreated: ");
-                if(mMediaPlayer != null) {
+
+                initWidth = getWidth();
+                initHeight = getHeight();
+
+                if (mMediaPlayer != null) {
                     mMediaPlayer.setDisplay(holder);
                     mMediaPlayer.openVideo();
                 }
@@ -85,8 +92,14 @@ public class VideoControllerView extends VideoBehaviorView {
             // TODO: 2017/6/13
 
             @Override
+            public void onVideoSizeChanged(MediaPlayer mp, int width, int height) {
+
+            }
+
+            @Override
             public void onPrepared(MediaPlayer mp) {
                 super.onPrepared(mp);
+
                 mMediaPlayer.start();
                 mediaController.show();
             }
@@ -106,10 +119,11 @@ public class VideoControllerView extends VideoBehaviorView {
 
     private int reConnect = 0;
     private long reConnectPosition = 0;
+
     private void reConnect() {
-        if(mMediaPlayer != null && mMediaPlayer.getVideoPath() != null && reConnect < 2) {
+        if (mMediaPlayer != null && mMediaPlayer.getVideoPath() != null && reConnect < 2) {
             // 重连两次
-            reConnect ++;
+            reConnect++;
             reConnectPosition = mMediaPlayer.getCurrentPosition();
             mMediaPlayer.stop();
             mMediaPlayer.start();
@@ -160,7 +174,7 @@ public class VideoControllerView extends VideoBehaviorView {
     }
 
     public void clearVideo() {
-        if(isPlayLocalVideo) return;
+        if (isPlayLocalVideo) return;
 
         video = null;
         reset();
@@ -170,7 +184,7 @@ public class VideoControllerView extends VideoBehaviorView {
      * 开始播放
      */
     public void startPlayVideo(final VideoDetailInfo video) {
-        if(video == null) {
+        if (video == null) {
             return;
         }
 
@@ -184,55 +198,6 @@ public class VideoControllerView extends VideoBehaviorView {
 
         String videoPath = video.getVideoUrl();
         mMediaPlayer.setVideoPath(videoPath);
-
-//        mSurfaceView.getHolder().addCallback(new SurfaceHolder.Callback() {
-//            @Override
-//            public void surfaceCreated(SurfaceHolder holder) {
-//                String videoPath = video.getVideoUrl();
-//                String videoPath = AVProvider.getDownloadedMediaPath(DownloadInfo.VIDEO, video.vedioId);
-//                // 如果新的视频和正在播放的是同一个，则不重复start
-//                if(videoPath != null
-//                        && mMediaPlayer != null
-//                        && mMediaPlayer.isStart()
-//                        && mMediaPlayer.isPlaying()
-//                        && videoPath.equals(mMediaPlayer.getDataSource()+"")) {
-//                    return;
-//                }
-
-//                reset();
-//                    if (videoPath != null) {
-//                        isPlayLocalVideo = true;
-//                    } else {
-//                        videoPath = video.getVideoUrl();
-//                        isPlayLocalVideo = false;
-//
-//                        // 先判断网络情况是否为手机流量
-//                        if (NetworkUtils.isMobileConnected(getContext()) &&
-//                                !NetworkUtils.isWifiConnected(getContext())) {
-//
-//                            // 再判断是否已经同意了手机流量播放
-//                            if (!mAllowUnWifiPlay) {
-//                                mErrorView.showError(VideoErrorView.STATUS_UN_WIFI_ERROR);
-//                                return;
-//                            }
-//                        }
-//                    }
-//
-//                Log.i("DDD", "startPlayVideo: " + isPlayLocalVideo + " = " + videoPath);
-//                mMediaPlayer.setVideoPath(videoPath);
-//                mMediaPlayer.start();
-//            }
-//
-//            @Override
-//            public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-//
-//            }
-//
-//            @Override
-//            public void surfaceDestroyed(SurfaceHolder holder) {
-//
-//            }
-//        });
     }
 
     private void reset() {
@@ -281,5 +246,20 @@ public class VideoControllerView extends VideoBehaviorView {
 
     public void setOnVideoControlListener(OnVideoControlListener onVideoControlListener) {
         this.onVideoControlListener = onVideoControlListener;
+        mediaController.setOnVideoControlListener(onVideoControlListener);
+    }
+
+    @Override
+    protected void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            getLayoutParams().width = initWidth;
+            getLayoutParams().height = initHeight;
+        } else {
+            getLayoutParams().width = LayoutParams.MATCH_PARENT;
+            getLayoutParams().height = LayoutParams.MATCH_PARENT;
+        }
+
     }
 }
