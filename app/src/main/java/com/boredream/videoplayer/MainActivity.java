@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
                 info.defaultDefinition = "common";
                 info.setCurDefinition(info.defaultDefinition);
                 info.vedioUrlDto = new HashMap<>();
-                info.vedioUrlDto.put(info.defaultDefinition, "http://baobab.wdjcdn.com/1455782903700jy.mp4");
+                info.vedioUrlDto.put(info.defaultDefinition, "http://pili-av.qbaolive.com/video/42367dc661f8911a8b220f77ca778cd8a_1080.mp4");
 
                 VideoDetailActivity.start(MainActivity.this, info);
             }

@@ -91,6 +91,19 @@ public class VideoPlayer {
                     if (callback != null) callback.onCompletion(mp);
                 }
             });
+            player.setOnInfoListener(new MediaPlayer.OnInfoListener() {
+                @Override
+                public boolean onInfo(MediaPlayer mp, int what, int extra) {
+                    if (callback != null) {
+                        if(what == MediaPlayer.MEDIA_INFO_BUFFERING_START) {
+                            callback.onLoadingChanged(true);
+                        } else if(what == MediaPlayer.MEDIA_INFO_BUFFERING_END) {
+                            callback.onLoadingChanged(false);
+                        }
+                    }
+                    return false;
+                }
+            });
             player.setOnErrorListener(mErrorListener);
             player.setOnVideoSizeChangedListener(new MediaPlayer.OnVideoSizeChangedListener() {
                 @Override

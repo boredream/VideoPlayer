@@ -7,9 +7,8 @@
     android:visibility="gone">
 
     <ProgressBar
-        style="?android:progressBarStyleLarge"
+        style="?android:progressBarStyleInverse"
         android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:indeterminateDrawable="@drawable/global_loading" />
+        android:layout_height="40dp" />
 
 </LinearLayout>

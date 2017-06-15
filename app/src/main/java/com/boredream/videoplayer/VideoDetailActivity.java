@@ -14,6 +14,7 @@ import com.boredream.videoplayer.video.utils.DisplayUtils;
 
 public class VideoDetailActivity extends AppCompatActivity {
 
+    private VideoControllerView videoView;
 
     public static void start(Context context, VideoDetailInfo info) {
         Intent intent = new Intent(context, VideoDetailActivity.class);
@@ -28,14 +29,14 @@ public class VideoDetailActivity extends AppCompatActivity {
 
         VideoDetailInfo info = (VideoDetailInfo) getIntent().getSerializableExtra("info");
 
-        VideoControllerView vv = (VideoControllerView) findViewById(R.id.vv);
-        vv.setOnVideoControlListener(new DefaultOnVideoControlListener() {
+        videoView = (VideoControllerView) findViewById(R.id.vv);
+        videoView.setOnVideoControlListener(new DefaultOnVideoControlListener() {
             @Override
             public void onFullScreen() {
                 DisplayUtils.toggleScreenOritation(VideoDetailActivity.this);
             }
         });
-        vv.startPlayVideo(info);
+        videoView.startPlayVideo(info);
 
     }
 

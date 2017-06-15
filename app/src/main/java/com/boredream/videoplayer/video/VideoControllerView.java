@@ -62,8 +62,6 @@ public class VideoControllerView extends VideoBehaviorView {
         mSurfaceView.getHolder().addCallback(new SurfaceHolder.Callback() {
             @Override
             public void surfaceCreated(SurfaceHolder holder) {
-                Log.i("DDD", "surfaceCreated: ");
-
                 initWidth = getWidth();
                 initHeight = getHeight();
 
@@ -75,12 +73,11 @@ public class VideoControllerView extends VideoBehaviorView {
 
             @Override
             public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-                Log.i("DDD", "surfaceChanged: ");
+
             }
 
             @Override
             public void surfaceDestroyed(SurfaceHolder holder) {
-                Log.i("DDD", "surfaceDestroyed: ");
                 release();
             }
         });
@@ -91,9 +88,11 @@ public class VideoControllerView extends VideoBehaviorView {
         mMediaPlayer.setCallback(new SimplePlayerCallback() {
             // TODO: 2017/6/13
 
-            @Override
-            public void onVideoSizeChanged(MediaPlayer mp, int width, int height) {
 
+            @Override
+            public void onLoadingChanged(boolean isShow) {
+                if (isShow) showLoading();
+                else hideLoading();
             }
 
             @Override
@@ -121,7 +120,7 @@ public class VideoControllerView extends VideoBehaviorView {
     private long reConnectPosition = 0;
 
     private void reConnect() {
-        if (mMediaPlayer != null && mMediaPlayer.getVideoPath() != null && reConnect < 2) {
+        if (mMediaPlayer.getVideoPath() != null && reConnect < 2) {
             // 重连两次
             reConnect++;
             reConnectPosition = mMediaPlayer.getCurrentPosition();
@@ -137,10 +136,6 @@ public class VideoControllerView extends VideoBehaviorView {
     private boolean isBackgroundPause;
 
     public void onPause() {
-        if (mMediaPlayer == null) {
-            return;
-        }
-
         if (mMediaPlayer.isPlaying()) {
             // 如果已经开始且在播放，则暂停同时记录状态
             Log.i("DDD", "isBackgroundPause");
@@ -150,10 +145,6 @@ public class VideoControllerView extends VideoBehaviorView {
     }
 
     public void onResume() {
-        if (mMediaPlayer == null) {
-            return;
-        }
-
         if (isBackgroundPause) {
             // 如果切换到后台暂停，后又切回来，则继续播放
             Log.i("DDD", "isBackgroundPause resume");
@@ -163,9 +154,7 @@ public class VideoControllerView extends VideoBehaviorView {
     }
 
     public void release() {
-        if (mMediaPlayer != null) {
-            mMediaPlayer.stop();
-        }
+        mMediaPlayer.stop();
 
 //        if (mWeakReferenceHandler != null) {
 //            mWeakReferenceHandler.cancel();
@@ -202,16 +191,13 @@ public class VideoControllerView extends VideoBehaviorView {
 
     private void reset() {
         // 先停止上一个
-        if (mMediaPlayer != null) {
-            mMediaPlayer.stop();
-        }
+        mMediaPlayer.stop();
         isPlayLocalVideo = false;
         reConnect = 0;
         reConnectPosition = 0;
     }
 
     private void playerPause() {
-        if (mMediaPlayer == null) return;
         mMediaPlayer.pause();
         Log.i("DDD", "playerPause");
 
@@ -220,8 +206,6 @@ public class VideoControllerView extends VideoBehaviorView {
     }
 
     private void playerStart() {
-        if (mMediaPlayer == null) return;
-
         reset();
 
         mMediaPlayer.start();
@@ -229,7 +213,6 @@ public class VideoControllerView extends VideoBehaviorView {
     }
 
     private void reload() {
-        if (mMediaPlayer == null) return;
         mMediaPlayer.stop();
         mMediaPlayer.start();
 
@@ -240,6 +223,16 @@ public class VideoControllerView extends VideoBehaviorView {
     public boolean onSingleTapUp(MotionEvent e) {
         mediaController.toggleDisplay();
         return super.onSingleTapUp(e);
+    }
+
+    @Override
+    protected void updateSeekUI(int delProgress) {
+        // TODO: 2017/6/15
+    }
+
+    @Override
+    protected void updateVolumeUI(int maxVolume, int curVolume) {
+
     }
 
     private OnVideoControlListener onVideoControlListener;

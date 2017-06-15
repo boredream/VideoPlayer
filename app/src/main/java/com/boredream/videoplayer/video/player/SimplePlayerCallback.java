@@ -28,4 +28,9 @@ public class SimplePlayerCallback implements PlayerCallback {
     public boolean onError(MediaPlayer mp, int what, int extra) {
         return false;
     }
+
+    @Override
+    public void onLoadingChanged(boolean isShow) {
+
+    }
 }
