@@ -4,7 +4,8 @@
     android:layout_height="44dp"
     android:layout_alignParentBottom="true"
     android:gravity="center_vertical"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:visibility="gone">
 
     <ImageView
         android:id="@+id/player_pause"

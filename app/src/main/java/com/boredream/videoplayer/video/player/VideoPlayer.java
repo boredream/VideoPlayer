@@ -4,7 +4,6 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.util.Log;
 import android.view.SurfaceHolder;
-import android.widget.VideoView;
 
 import java.io.IOException;
 
@@ -125,6 +124,7 @@ public class VideoPlayer {
     }
 
     public void start() {
+        Log.i("DDD", "start");
         if (isInPlaybackState()) {
             player.start();
             curStatus = STATE_PLAYING;

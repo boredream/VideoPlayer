@@ -88,6 +88,7 @@ public class VideoControllerView extends VideoBehaviorView {
             public void onPrepared(MediaPlayer mp) {
                 super.onPrepared(mp);
                 mMediaPlayer.start();
+                mediaController.show();
             }
         });
         mediaController.setMediaPlayer(mMediaPlayer);

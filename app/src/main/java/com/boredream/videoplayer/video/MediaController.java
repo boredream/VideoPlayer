@@ -7,7 +7,6 @@ import android.text.style.ForegroundColorSpan;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -25,7 +24,6 @@ import com.boredream.videoplayer.video.utils.NetworkUtils;
 import com.boredream.videoplayer.video.utils.ScreenUtils;
 
 import java.util.Locale;
-import java.util.zip.Inflater;
 
 /**
  * 视频控制器，可替换或自定义样式
@@ -188,19 +186,9 @@ public class MediaController extends FrameLayout {
 
         // change
         mVideoChangeFluency = (TextView) findViewById(R.id.video_change_fluency);
-    }
 
-    private final OnTouchListener mTouchListener = new OnTouchListener() {
-        @Override
-        public boolean onTouch(View v, MotionEvent event) {
-            if (event.getAction() == MotionEvent.ACTION_DOWN) {
-                if (mShowing) {
-                    hide();
-                }
-            }
-            return false;
-        }
-    };
+        mPlayerSeekBar.setMax(1000);
+    }
 
     public void setMediaPlayer(VideoPlayer player) {
         mPlayer = player;
@@ -254,7 +242,7 @@ public class MediaController extends FrameLayout {
 
         if (timeout > 0) {
             removeCallbacks(mFadeOut);
-            postDelayed(mFadeOut, 3000);
+            postDelayed(mFadeOut, timeout);
         }
     }
 
@@ -285,6 +273,7 @@ public class MediaController extends FrameLayout {
     };
 
     private boolean mDragging;
+    private long mDraggingProgress;
     private final Runnable mShowProgress = new Runnable() {
         @Override
         public void run() {
@@ -436,16 +425,18 @@ public class MediaController extends FrameLayout {
             }
 
             long duration = mPlayer.getDuration();
-            long newposition = (duration * progress) / 1000L;
-            mPlayer.seekTo((int) newposition);
+            mDraggingProgress = (duration * progress) / 1000L;
+
             if (mVideoProgress != null) {
-                mVideoProgress.setText(stringForTime((int) newposition));
+                mVideoProgress.setText(stringForTime((int) mDraggingProgress));
             }
         }
 
         @Override
         public void onStopTrackingTouch(SeekBar bar) {
+            mPlayer.seekTo((int) mDraggingProgress);
             mDragging = false;
+            mDraggingProgress = 0;
             setProgress();
             updatePausePlay();
             show();
@@ -561,8 +552,10 @@ public class MediaController extends FrameLayout {
     private void doPauseResume() {
         if (mPlayer.isPlaying()) {
             mPlayer.pause();
+            removeCallbacks(mFadeOut);
         } else {
             mPlayer.start();
+            show();
         }
         updatePausePlay();
     }
