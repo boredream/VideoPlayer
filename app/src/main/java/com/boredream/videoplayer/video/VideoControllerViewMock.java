@@ -875,7 +875,7 @@ public class VideoControllerViewMock extends FrameLayout implements GestureDetec
             // 快进结束，开始seek
             if (event.getAction() == MotionEvent.ACTION_UP &&
                     mProgressDialog.getVisibility() == VISIBLE) {
-                int newProgress = mProgressDialog.getProgress(mMediaPlayer.getDuration());
+                int newProgress = mProgressDialog.getProgress();
                 if (newProgress >= 0) {
                     seekComplete(newProgress);
                 }
@@ -959,7 +959,7 @@ public class VideoControllerViewMock extends FrameLayout implements GestureDetec
                 // 默认滑动一个屏幕 视频移动八分钟.
                 int delProgress = (int) (1.0f * distanceX / width * 480 * 1000);
                 // 更新快进弹框
-                mProgressDialog.updateSeekDialog(delProgress,
+                mProgressDialog.show(delProgress,
                         mMediaPlayer.getCurrentPosition(),
                         mMediaPlayer.getDuration());
                 break;

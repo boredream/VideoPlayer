@@ -1,8 +1,6 @@
 package com.boredream.videoplayer.video;
 
-import android.annotation.TargetApi;
 import android.content.Context;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -19,6 +17,7 @@ public class VideoProgressOverlay extends FrameLayout {
     private TextView mSeekCurProgress;
     private TextView mSeekDuration;
 
+    private int mDuration = -1;
     private int mDelSeekDialogProgress = -1;
     private int mSeekDialogStartProgress = -1;
 
@@ -37,12 +36,6 @@ public class VideoProgressOverlay extends FrameLayout {
         init();
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public VideoProgressOverlay(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
-        init();
-    }
-
     private void init() {
         LayoutInflater.from(getContext()).inflate(R.layout.video_overlay_progress, this);
 
@@ -58,12 +51,12 @@ public class VideoProgressOverlay extends FrameLayout {
      * @param curPosition player当前进度
      * @param duration    player总长度
      */
-    public void updateSeekDialog(int delProgress, int curPosition, int duration) {
+    public void show(int delProgress, int curPosition, int duration) {
         if (duration <= 0) return;
 
         // 获取第一次显示时的开始进度
         if (mSeekDialogStartProgress == -1) {
-            Log.i("DDD", "updateSeekDialog: start seek = " + mSeekDialogStartProgress);
+            Log.i("DDD", "show: start seek = " + mSeekDialogStartProgress);
             mSeekDialogStartProgress = curPosition;
         }
 
@@ -71,8 +64,9 @@ public class VideoProgressOverlay extends FrameLayout {
             setVisibility(View.VISIBLE);
         }
 
+        mDuration = duration;
         mDelSeekDialogProgress -= delProgress;
-        long newSeekProgress = getProgress(duration);
+        int newSeekProgress = getProgress();
 
         if (delProgress > 0) {
             // 回退
@@ -81,18 +75,23 @@ public class VideoProgressOverlay extends FrameLayout {
             // 前进
             mSeekIcon.setImageResource(R.drawable.ic_video_speed);
         }
-        mSeekCurProgress.setText(StringUtils.millSecondsToString((int) newSeekProgress));
-        mSeekDuration.setText(StringUtils.millSecondsToString((int) duration));
+        mSeekCurProgress.setText(StringUtils.millSecondsToString(newSeekProgress));
+        mSeekDuration.setText(StringUtils.millSecondsToString(mDuration));
     }
 
-    public int getProgress(int duration) {
+    public int getProgress() {
+        if(mDuration == -1) {
+            return -1;
+        }
+
         int newSeekProgress = mSeekDialogStartProgress + mDelSeekDialogProgress;
         if (newSeekProgress <= 0) newSeekProgress = 0;
-        if (newSeekProgress >= duration) newSeekProgress = duration;
+        if (newSeekProgress >= mDuration) newSeekProgress = mDuration;
         return newSeekProgress;
     }
 
     public void hide() {
+        mDuration = -1;
         mSeekDialogStartProgress = -1;
         mDelSeekDialogProgress = -1;
         setVisibility(GONE);

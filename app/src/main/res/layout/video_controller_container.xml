@@ -20,7 +20,7 @@
     </com.boredream.videoplayer.video.MediaController>
 
     <com.boredream.videoplayer.video.VideoSystemOverlay
-        android:id="@+id/video_system"
+        android:id="@+id/video_system_overlay"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"

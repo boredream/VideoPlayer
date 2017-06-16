@@ -22,7 +22,8 @@ public class VideoControllerView extends VideoBehaviorView {
     private SurfaceView mSurfaceView;
     private View mLoading;
     private MediaController mediaController;
-    private VideoSystemOverlay videoSystem;
+    private VideoSystemOverlay videoSystemOverlay;
+    private VideoProgressOverlay videoProgressOverlay;
     private VideoPlayer mMediaPlayer;
 
     private boolean mIsScreenLock;
@@ -57,7 +58,8 @@ public class VideoControllerView extends VideoBehaviorView {
         mSurfaceView = (SurfaceView) findViewById(R.id.video_surface);
         mLoading = findViewById(R.id.video_loading);
         mediaController = (MediaController) findViewById(R.id.video_controller);
-        videoSystem = (VideoSystemOverlay) findViewById(R.id.video_system);
+        videoSystemOverlay = (VideoSystemOverlay) findViewById(R.id.video_system_overlay);
+        videoProgressOverlay = (VideoProgressOverlay) findViewById(R.id.video_progress_overlay);
 
         initPlayer();
 
@@ -109,12 +111,10 @@ public class VideoControllerView extends VideoBehaviorView {
     }
 
     private void showLoading() {
-        Log.i("DDD", "showLoading");
         mLoading.setVisibility(VISIBLE);
     }
 
     private void hideLoading() {
-        Log.i("DDD", "hideLoading");
         mLoading.setVisibility(GONE);
     }
 
@@ -233,28 +233,29 @@ public class VideoControllerView extends VideoBehaviorView {
             case FINGER_BEHAVIOR_BRIGHTNESS:
             case FINGER_BEHAVIOR_VOLUME:
                 Log.i("DDD", "endGesture: left right");
-                videoSystem.hide();
+                videoSystemOverlay.hide();
                 break;
             case FINGER_BEHAVIOR_PROGRESS:
-                // TODO: 2017/6/16
                 Log.i("DDD", "endGesture: bottom");
+                mMediaPlayer.seekTo(videoProgressOverlay.getProgress());
+                videoProgressOverlay.hide();
                 break;
         }
     }
 
     @Override
     protected void updateSeekUI(int delProgress) {
-        // TODO: 2017/6/15
+        videoProgressOverlay.show(delProgress, mMediaPlayer.getCurrentPosition(), mMediaPlayer.getDuration());
     }
 
     @Override
     protected void updateVolumeUI(int max, int progress) {
-        videoSystem.show(VideoSystemOverlay.SystemType.VOLUME, max, progress);
+        videoSystemOverlay.show(VideoSystemOverlay.SystemType.VOLUME, max, progress);
     }
 
     @Override
     protected void updateLightUI(int max, int progress) {
-        videoSystem.show(VideoSystemOverlay.SystemType.BRIGHTNESS, max, progress);
+        videoSystemOverlay.show(VideoSystemOverlay.SystemType.BRIGHTNESS, max, progress);
     }
 
     private OnVideoControlListener onVideoControlListener;
