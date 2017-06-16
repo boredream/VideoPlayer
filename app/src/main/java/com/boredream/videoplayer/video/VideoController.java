@@ -146,6 +146,10 @@ public class VideoController extends FrameLayout {
         updatePausePlay();
     }
 
+    public void setTitle(String title) {
+        mVideoTitle.setText(title);
+    }
+
     public void toggleDisplay() {
         if (mShowing) {
             hide();
@@ -441,19 +445,16 @@ public class VideoController extends FrameLayout {
 
     private void doPauseResume() {
         if (mPlayer.isPlaying()) {
-            mPlayer.pause();
-            removeCallbacks(mFadeOut);
+            pause();
         } else {
-            mPlayer.start();
-            show();
+            play();
         }
-        updatePausePlay();
     }
 
     private void pause() {
         mPlayer.pause();
-        removeCallbacks(mFadeOut);
         updatePausePlay();
+        removeCallbacks(mFadeOut);
     }
 
     private void play() {

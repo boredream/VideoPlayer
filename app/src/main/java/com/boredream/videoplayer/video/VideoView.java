@@ -13,7 +13,7 @@ import android.view.View;
 
 import com.boredream.videoplayer.R;
 import com.boredream.videoplayer.VideoBehaviorView;
-import com.boredream.videoplayer.video.bean.VideoDetailInfo;
+import com.boredream.videoplayer.video.bean.IVideoInfo;
 import com.boredream.videoplayer.video.player.SimplePlayerCallback;
 import com.boredream.videoplayer.video.player.VideoPlayer;
 
@@ -26,8 +26,7 @@ public class VideoView extends VideoBehaviorView {
     private VideoProgressOverlay videoProgressOverlay;
     private VideoPlayer mMediaPlayer;
 
-    private boolean isPlayLocalVideo;
-    private VideoDetailInfo video;
+    private IVideoInfo video;
     private int initWidth;
     private int initHeight;
 
@@ -165,37 +164,26 @@ public class VideoView extends VideoBehaviorView {
         mediaController.release();
     }
 
-    public void clearVideo() {
-        if (isPlayLocalVideo) return;
-
-        video = null;
-        reset();
-    }
-
     /**
      * 开始播放
      */
-    public void startPlayVideo(final VideoDetailInfo video) {
+    public void startPlayVideo(final IVideoInfo video) {
         if (video == null) {
             return;
         }
 
         this.video = video;
 
-        // TODO: 2017/6/13
-//        isPlayLocalVideo = startWithLocal;
-
-        // TODO: 2017/6/13 check local video
         reset();
 
-        String videoPath = video.getVideoUrl();
+        String videoPath = video.getVideoPath();
+        mediaController.setTitle(video.getVideoTitle());
         mMediaPlayer.setVideoPath(videoPath);
     }
 
     private void reset() {
         // 先停止上一个
         mMediaPlayer.stop();
-        isPlayLocalVideo = false;
         reConnect = 0;
         reConnectPosition = 0;
     }
@@ -203,9 +191,6 @@ public class VideoView extends VideoBehaviorView {
     private void playerPause() {
         mMediaPlayer.pause();
         Log.i("DDD", "playerPause");
-
-        // TODO: 2017/6/7 暂停的时候控件不隐藏
-//        mWeakReferenceHandler.cancel();
     }
 
     private void playerStart() {

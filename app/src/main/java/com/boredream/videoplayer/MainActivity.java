@@ -7,8 +7,6 @@ import android.view.View;
 import com.boredream.videoplayer.video.bean.VideoDetailInfo;
 import com.boredream.videoplayer.video.utils.MockUtils;
 
-import java.util.HashMap;
-
 public class MainActivity extends AppCompatActivity {
 
     @Override
@@ -21,11 +19,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 VideoDetailInfo info = MockUtils.mockData(VideoDetailInfo.class);
-                info.defaultDefinition = "common";
-                info.setCurDefinition(info.defaultDefinition);
-                info.vedioUrlDto = new HashMap<>();
-                info.vedioUrlDto.put(info.defaultDefinition, "http://pili-av.qbaolive.com/video/42367dc661f8911a8b220f77ca778cd8a_1080.mp4");
-
                 VideoDetailActivity.start(MainActivity.this, info);
             }
         });

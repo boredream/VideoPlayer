@@ -20,7 +20,6 @@
         <activity
             android:name=".VideoDetailActivity"
             android:configChanges="orientation|keyboardHidden|screenSize" />
-        <activity android:name=".VideoViewActivity" />
     </application>
 
 </manifest>

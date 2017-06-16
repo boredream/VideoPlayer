@@ -6,9 +6,7 @@ import android.content.res.Configuration;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.provider.Settings;
-import android.text.SpannableString;
 import android.text.TextUtils;
-import android.text.style.ForegroundColorSpan;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -588,7 +586,7 @@ public class VideoControllerViewMock extends FrameLayout implements GestureDetec
 
         this.video = video;
 
-        mVideoTitle.setText(video.vedioTitle);
+        mVideoTitle.setText(video.videoTitle);
 
         // TODO: 2017/6/13
 //        isPlayLocalVideo = startWithLocal;
@@ -596,7 +594,7 @@ public class VideoControllerViewMock extends FrameLayout implements GestureDetec
         // TODO: 2017/6/13 check local video
         reset();
 
-        String videoPath = video.getVideoUrl();
+        String videoPath = video.videoPath;
         mMediaPlayer.setVideoPath(videoPath);
 
 //        mSurfaceView.getHolder().addCallback(new SurfaceHolder.Callback() {

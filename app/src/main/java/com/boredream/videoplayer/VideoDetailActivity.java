@@ -51,6 +51,13 @@ public class VideoDetailActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        videoView.release();
+    }
+
+    @Override
     public void onBackPressed() {
         if (!DisplayUtils.isPortrait(this)) {
             if(!videoView.isLock()) {
