@@ -58,8 +58,8 @@ public class VideoControllerViewMock extends FrameLayout implements GestureDetec
     private TextView mVideoRatio;
     private TextView mVideoCatalog;
     private ImageView mVideoFullScreen;
-    private VideoSystemView mSystemUI;
-    private VideoProgressDialog mProgressDialog;
+    private VideoSystemOverlay mSystemUI;
+    private VideoProgressOverlay mProgressDialog;
     private VideoCatalogDialog mCatalogDialog;
     private VideoRatioDialog mRatioDialog;
     private View mViewComplete;
@@ -111,8 +111,8 @@ public class VideoControllerViewMock extends FrameLayout implements GestureDetec
 
         initPlayer();
         initControllerPanel();
-        mSystemUI = (VideoSystemView) findViewById(R.id.video_system);
-        mProgressDialog = (VideoProgressDialog) findViewById(R.id.video_progress_dialog);
+        mSystemUI = (VideoSystemOverlay) findViewById(R.id.video_system);
+        mProgressDialog = (VideoProgressOverlay) findViewById(R.id.video_progress_dialog);
         mCatalogDialog = (VideoCatalogDialog) findViewById(R.id.video_catalog_dialog);
         mRatioDialog = (VideoRatioDialog) findViewById(R.id.video_ratio_dialog);
         mRatioDialog.setOnVideoControlListener(new DefaultOnVideoControlListener() {
@@ -971,7 +971,7 @@ public class VideoControllerViewMock extends FrameLayout implements GestureDetec
                 if (progress >= mMaxVolume) progress = mMaxVolume;
 
                 mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, Math.round(progress), 0);
-                mSystemUI.show(VideoSystemView.SYSTEM_UI_VOLUME, mMaxVolume, Math.round(progress));
+                mSystemUI.show(VideoSystemOverlay.SystemType.VOLUME, mMaxVolume, Math.round(progress));
 
                 mCurrentVolume = progress;
                 break;
@@ -994,7 +994,7 @@ public class VideoControllerViewMock extends FrameLayout implements GestureDetec
                     params.screenBrightness = progress / (float) mMaxBrightness;
                     window.setAttributes(params);
 
-                    mSystemUI.show(VideoSystemView.SYSTEM_UI_BRIGHTNESS, mMaxBrightness, progress);
+                    mSystemUI.show(VideoSystemOverlay.SystemType.BRIGHTNESS, mMaxBrightness, progress);
 
                     mCurrentBrightness = progress;
                 } catch (Exception e) {

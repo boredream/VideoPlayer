@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -19,5 +19,22 @@
 
     </com.boredream.videoplayer.video.MediaController>
 
+    <com.boredream.videoplayer.video.VideoSystemOverlay
+        android:id="@+id/video_system"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="gone">
 
-</FrameLayout>
+    </com.boredream.videoplayer.video.VideoSystemOverlay>
+
+    <com.boredream.videoplayer.video.VideoProgressOverlay
+        android:id="@+id/video_progress_overlay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="gone">
+
+    </com.boredream.videoplayer.video.VideoProgressOverlay>
+
+</RelativeLayout>

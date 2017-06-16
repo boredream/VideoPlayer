@@ -22,6 +22,7 @@ public class VideoControllerView extends VideoBehaviorView {
     private SurfaceView mSurfaceView;
     private View mLoading;
     private MediaController mediaController;
+    private VideoSystemOverlay videoSystem;
     private VideoPlayer mMediaPlayer;
 
     private boolean mIsScreenLock;
@@ -56,6 +57,7 @@ public class VideoControllerView extends VideoBehaviorView {
         mSurfaceView = (SurfaceView) findViewById(R.id.video_surface);
         mLoading = findViewById(R.id.video_loading);
         mediaController = (MediaController) findViewById(R.id.video_controller);
+        videoSystem = (VideoSystemOverlay) findViewById(R.id.video_system);
 
         initPlayer();
 
@@ -226,13 +228,33 @@ public class VideoControllerView extends VideoBehaviorView {
     }
 
     @Override
+    protected void endGesture(int behaviorType) {
+        switch (behaviorType) {
+            case FINGER_BEHAVIOR_BRIGHTNESS:
+            case FINGER_BEHAVIOR_VOLUME:
+                Log.i("DDD", "endGesture: left right");
+                videoSystem.hide();
+                break;
+            case FINGER_BEHAVIOR_PROGRESS:
+                // TODO: 2017/6/16
+                Log.i("DDD", "endGesture: bottom");
+                break;
+        }
+    }
+
+    @Override
     protected void updateSeekUI(int delProgress) {
         // TODO: 2017/6/15
     }
 
     @Override
-    protected void updateVolumeUI(int maxVolume, int curVolume) {
+    protected void updateVolumeUI(int max, int progress) {
+        videoSystem.show(VideoSystemOverlay.SystemType.VOLUME, max, progress);
+    }
 
+    @Override
+    protected void updateLightUI(int max, int progress) {
+        videoSystem.show(VideoSystemOverlay.SystemType.BRIGHTNESS, max, progress);
     }
 
     private OnVideoControlListener onVideoControlListener;

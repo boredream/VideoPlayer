@@ -14,7 +14,7 @@ import android.widget.TextView;
 import com.boredream.videoplayer.R;
 import com.boredream.videoplayer.video.utils.StringUtils;
 
-public class VideoProgressDialog extends FrameLayout {
+public class VideoProgressOverlay extends FrameLayout {
     private ImageView mSeekIcon;
     private TextView mSeekCurProgress;
     private TextView mSeekDuration;
@@ -22,29 +22,29 @@ public class VideoProgressDialog extends FrameLayout {
     private int mDelSeekDialogProgress = -1;
     private int mSeekDialogStartProgress = -1;
 
-    public VideoProgressDialog(Context context) {
+    public VideoProgressOverlay(Context context) {
         super(context);
         init();
     }
 
-    public VideoProgressDialog(Context context, AttributeSet attrs) {
+    public VideoProgressOverlay(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
     }
 
-    public VideoProgressDialog(Context context, AttributeSet attrs, int defStyleAttr) {
+    public VideoProgressOverlay(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init();
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public VideoProgressDialog(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public VideoProgressOverlay(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init();
     }
 
     private void init() {
-        LayoutInflater.from(getContext()).inflate(R.layout.video_progress_dialog, this);
+        LayoutInflater.from(getContext()).inflate(R.layout.video_overlay_progress, this);
 
         mSeekIcon = (ImageView) findViewById(R.id.iv_seek_direction);
         mSeekCurProgress = (TextView) findViewById(R.id.tv_seek_current_progress);

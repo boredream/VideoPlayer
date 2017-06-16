@@ -30,21 +30,21 @@
         android:src="@drawable/video_unlock"
         android:visibility="gone" />
 
-    <com.boredream.videoplayer.video.VideoSystemView
+    <com.boredream.videoplayer.video.VideoSystemOverlay
         android:id="@+id/video_system"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-    </com.boredream.videoplayer.video.VideoSystemView>
+    </com.boredream.videoplayer.video.VideoSystemOverlay>
 
-    <com.boredream.videoplayer.video.VideoProgressDialog
+    <com.boredream.videoplayer.video.VideoProgressOverlay
         android:id="@+id/video_progress_dialog"
         android:layout_width="132dp"
         android:layout_height="80dp"
         android:layout_centerInParent="true"
         android:visibility="gone">
 
-    </com.boredream.videoplayer.video.VideoProgressDialog>
+    </com.boredream.videoplayer.video.VideoProgressOverlay>
 
     <include
         android:id="@+id/video_controller_complete"

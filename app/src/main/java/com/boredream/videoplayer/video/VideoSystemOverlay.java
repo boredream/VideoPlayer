@@ -15,27 +15,28 @@ import com.boredream.videoplayer.R;
  * 定制音量|亮度样式
  * Created by david on 16/5/19.
  */
-public class VideoSystemView extends FrameLayout {
+public class VideoSystemOverlay extends FrameLayout {
 
-    public static final int SYSTEM_UI_VOLUME        = 0x01;
-    public static final int SYSTEM_UI_BRIGHTNESS    = 0x02;
+    public enum SystemType {
+        VOLUME, BRIGHTNESS
+    }
 
     private TextView mSystemTitle;
     private ImageView mSystemImage;
     private ProgressBar mProgressBar;
 
-    public VideoSystemView(Context context) {
+    public VideoSystemOverlay(Context context) {
         super(context);
         initialize(context);
     }
 
-    public VideoSystemView(Context context, AttributeSet attrs) {
+    public VideoSystemOverlay(Context context, AttributeSet attrs) {
         super(context, attrs);
         initialize(context);
     }
 
     private void initialize(Context context) {
-        LayoutInflater.from(context).inflate(R.layout.video_system_ui, this);
+        LayoutInflater.from(context).inflate(R.layout.video_overlay_system, this);
 
         mSystemTitle = (TextView) findViewById(R.id.system_ui_title);
         mSystemImage = (ImageView) findViewById(R.id.system_ui_image);
@@ -44,14 +45,15 @@ public class VideoSystemView extends FrameLayout {
         hide();
     }
 
-    public void show(int ui, int max, int progress)  {
-        if (ui == SYSTEM_UI_BRIGHTNESS) {
+    public void show(SystemType type, int max, int progress) {
+        if (type == SystemType.BRIGHTNESS) {
             mSystemTitle.setText("亮度");
             mSystemImage.setImageResource(R.drawable.system_ui_brightness);
-        } else if (ui == SYSTEM_UI_VOLUME) {
+        } else if (type == SystemType.VOLUME) {
             mSystemTitle.setText("音量");
-            mSystemImage.setImageResource(progress == 0 ?
-                    R.drawable.system_ui_no_volume : R.drawable.system_ui_volume);
+            mSystemImage.setImageResource(progress == 0
+                    ? R.drawable.system_ui_no_volume
+                    : R.drawable.system_ui_volume);
         }
         mProgressBar.setMax(max);
         mProgressBar.setProgress(progress);

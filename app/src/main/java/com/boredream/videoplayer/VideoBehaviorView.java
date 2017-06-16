@@ -15,10 +15,9 @@ public class VideoBehaviorView extends FrameLayout implements GestureDetector.On
 
     private GestureDetector mGestureDetector;
 
-    private static final int FINGER_BEHAVIOR_PROGRESS = 0x01;  //进度调节
-    private static final int FINGER_BEHAVIOR_VOLUME = 0x02;  //音量调节
-    private static final int FINGER_BEHAVIOR_BRIGHTNESS = 0x03;  //亮度调节
-
+    public static final int FINGER_BEHAVIOR_PROGRESS = 0x01;  //进度调节
+    public static final int FINGER_BEHAVIOR_VOLUME = 0x02;  //音量调节
+    public static final int FINGER_BEHAVIOR_BRIGHTNESS = 0x03;  //亮度调节
     private int mFingerBehavior;
     private float mCurrentVolume; // 鉴于音量范围值比较小 使用float类型施舍五入处理.
     private int mMaxVolume;
@@ -57,21 +56,32 @@ public class VideoBehaviorView extends FrameLayout implements GestureDetector.On
         mMaxBrightness = 255;
     }
 
+    protected void endGesture(int behaviorType) {
+        // TODO: 2017/6/14
+    }
+
     protected void updateSeekUI(int delProgress) {
         // TODO: 2017/6/14  
     }
 
-    protected void updateVolumeUI(int maxVolume, int curVolume) {
+    protected void updateVolumeUI(int max, int progress) {
         // TODO: 2017/6/14  
     }
 
-    protected void updateLightUI(int maxLight, int curLight) {
+    protected void updateLightUI(int max, int progress) {
         // TODO: 2017/6/14  
     }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         mGestureDetector.onTouchEvent(event);
+        switch (event.getAction() & MotionEvent.ACTION_MASK) {
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_OUTSIDE:
+            case MotionEvent.ACTION_CANCEL:
+                endGesture(mFingerBehavior);
+                break;
+        }
         return true;
     }
 
@@ -100,7 +110,7 @@ public class VideoBehaviorView extends FrameLayout implements GestureDetector.On
 
     @Override
     public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-        // TODO: 2017/6/14  
+        // TODO: 2017/6/14
 //        if (mIsScreenLock) {
 //            return false;
 //        }
@@ -133,13 +143,13 @@ public class VideoBehaviorView extends FrameLayout implements GestureDetector.On
                 break;
             }
             case FINGER_BEHAVIOR_VOLUME: { // 音量变化
-                int progress = Math.round(1f * mMaxVolume * (distanceY / height) + mCurrentVolume);
+                float progress = mMaxVolume * (distanceY / height) + mCurrentVolume;
+
                 if (progress <= 0) progress = 0;
                 if (progress >= mMaxVolume) progress = mMaxVolume;
 
-                am.setStreamVolume(AudioManager.STREAM_MUSIC, progress, 0);
-                updateVolumeUI(mMaxVolume, progress);
-
+                am.setStreamVolume(AudioManager.STREAM_MUSIC, Math.round(progress), 0);
+                updateVolumeUI(mMaxVolume, Math.round(progress));
                 mCurrentVolume = progress;
                 break;
             }
