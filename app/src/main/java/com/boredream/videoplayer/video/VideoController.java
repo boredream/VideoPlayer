@@ -427,7 +427,7 @@ public class VideoController extends FrameLayout {
         }
     };
 
-    private void updatePausePlay() {
+    public void updatePausePlay() {
         if (mPlayer.isPlaying()) {
             mVideoPlayState.setImageResource(R.drawable.ic_video_pause);
         } else {

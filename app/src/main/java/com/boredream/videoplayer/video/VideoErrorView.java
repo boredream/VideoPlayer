@@ -64,6 +64,11 @@ public class VideoErrorView extends FrameLayout {
 
     public void showError(int status) {
         setVisibility(View.VISIBLE);
+
+        if(curStatus == status) {
+            return;
+        }
+
         curStatus = status;
 
         switch (status) {

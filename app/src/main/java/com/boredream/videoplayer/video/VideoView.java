@@ -89,10 +89,14 @@ public class VideoView extends VideoBehaviorView {
         mMediaPlayer.setCallback(new SimplePlayerCallback() {
 
             @Override
+            public void onCompletion(MediaPlayer mp) {
+                // TODO: 2017/6/16 MediaPlayer设置callback
+                mediaController.updatePausePlay();
+            }
+
+            @Override
             public void onError(MediaPlayer mp, int what, int extra) {
-                // TODO: 2017/6/16
-                Log.i("DDD", "~~~~~~~ onError: ");
-                reConnect();
+                mediaController.checkShowError(false);
             }
 
             @Override
@@ -121,29 +125,13 @@ public class VideoView extends VideoBehaviorView {
         mLoading.setVisibility(GONE);
     }
 
-    private int reConnect = 0;
-    private long reConnectPosition = 0; // TODO: 2017/6/16  
-
-    private void reConnect() {
-        Log.i("DDD", "reConnect: " + reConnect);
-        if (mMediaPlayer.getVideoPath() != null && reConnect < 1) {
-            reConnect++;
-            reConnectPosition = mMediaPlayer.getCurrentPosition();
-            mMediaPlayer.openVideo();
-        } else {
-            reConnect = 0;
-            reConnectPosition = 0;
-            mediaController.checkShowError(false);
-        }
-    }
-
     private boolean isBackgroundPause;
 
     public void onStop() {
         if (mMediaPlayer.isPlaying()) {
             // 如果已经开始且在播放，则暂停同时记录状态
             isBackgroundPause = true;
-            playerPause();
+            mMediaPlayer.pause();
         }
     }
 
@@ -151,7 +139,7 @@ public class VideoView extends VideoBehaviorView {
         if (isBackgroundPause) {
             // 如果切换到后台暂停，后又切回来，则继续播放
             isBackgroundPause = false;
-            playerStart();
+            mMediaPlayer.start();
         }
     }
 
@@ -168,30 +156,11 @@ public class VideoView extends VideoBehaviorView {
             return;
         }
 
-        reset();
+        mMediaPlayer.reset();
 
         String videoPath = video.getVideoPath();
         mediaController.setVideoInfo(video);
         mMediaPlayer.setVideoPath(videoPath);
-    }
-
-    private void reset() {
-        // 先停止上一个
-        mMediaPlayer.stop();
-        reConnect = 0;
-        reConnectPosition = 0;
-    }
-
-    private void playerPause() {
-        mMediaPlayer.pause();
-        Log.i("DDD", "playerPause");
-    }
-
-    private void playerStart() {
-        reset();
-
-        mMediaPlayer.start();
-        Log.i("DDD", "playerStart");
     }
 
     @Override
