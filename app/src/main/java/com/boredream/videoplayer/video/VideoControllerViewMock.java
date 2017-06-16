@@ -59,8 +59,6 @@ public class VideoControllerViewMock extends FrameLayout implements GestureDetec
     private ImageView mVideoFullScreen;
     private VideoSystemOverlay mSystemUI;
     private VideoProgressOverlay mProgressDialog;
-    private VideoCatalogDialog mCatalogDialog;
-    private VideoRatioDialog mRatioDialog;
     private View mViewComplete;
     private Button mViewCompleteBack;
     private ImageView mScreenLock;
@@ -110,28 +108,6 @@ public class VideoControllerViewMock extends FrameLayout implements GestureDetec
 
         initPlayer();
         initControllerPanel();
-        mSystemUI = (VideoSystemOverlay) findViewById(R.id.video_system);
-        mProgressDialog = (VideoProgressOverlay) findViewById(R.id.video_progress_dialog);
-        mCatalogDialog = (VideoCatalogDialog) findViewById(R.id.video_catalog_dialog);
-        mRatioDialog = (VideoRatioDialog) findViewById(R.id.video_ratio_dialog);
-        mRatioDialog.setOnVideoControlListener(new DefaultOnVideoControlListener() {
-            @Override
-            public void onRatioSelected(String fluency) {
-                mRatioDialog.hide();
-                if (onVideoControlListener != null) {
-                    onVideoControlListener.onRatioSelected(fluency);
-                }
-            }
-        });
-        mCatalogDialog.setOnVideoControlListener(new DefaultOnVideoControlListener() {
-            @Override
-            public void onCatalogItemSelected(int videoIndex) {
-                mCatalogDialog.hide();
-                if (onVideoControlListener != null) {
-                    onVideoControlListener.onCatalogItemSelected(videoIndex);
-                }
-            }
-        });
 
         mGestureDetector = new GestureDetector(getContext().getApplicationContext(), this);
         setOnTouchListener(this);
@@ -165,33 +141,6 @@ public class VideoControllerViewMock extends FrameLayout implements GestureDetec
         showVideoPanel();
     }
 
-    public void startUpdateFluency(String fluency) {
-        mIsChangeFluency = true;
-
-        String fluencyTitle = VideoFluencyConstants.getFluencyTitle(fluency);
-        String str = String.format("正在切换到%s，请稍候... ", fluencyTitle);
-        SpannableString ss = new SpannableString(str);
-        ForegroundColorSpan colorSpan = new ForegroundColorSpan(0xFFFD7D6F);
-        ss.setSpan(colorSpan, 5, 5 + fluencyTitle.length(), SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-        mVideoChangeFluency.setVisibility(View.VISIBLE);
-        mVideoChangeFluency.setText(ss);
-    }
-
-    public void completeUpdateFluency(String fluency) {
-        mIsChangeFluency = false;
-
-        String fluencyTitle = VideoFluencyConstants.getFluencyTitle(fluency);
-        String str = String.format("提醒您已切换到%s", fluencyTitle);
-        SpannableString ss = new SpannableString(str);
-        ForegroundColorSpan colorSpan = new ForegroundColorSpan(0xFFFD7D6F);
-        ss.setSpan(colorSpan, 7, 7 + fluencyTitle.length(), SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-        mVideoRatio.setText(fluencyTitle);
-        mVideoChangeFluency.setVisibility(View.VISIBLE);
-        mVideoChangeFluency.setText(ss);
-    }
-
     private void initControllerPanel() {
         // back
         mControllerBack = findViewById(R.id.video_back);
@@ -212,24 +161,10 @@ public class VideoControllerViewMock extends FrameLayout implements GestureDetec
         mVideoPlayState = (ImageView) mControllerBottom.findViewById(R.id.player_pause);
         mVideoProgress = (TextView) mControllerBottom.findViewById(R.id.player_progress);
         mVideoDuration = (TextView) mControllerBottom.findViewById(R.id.player_duration);
-        mVideoRatio = (TextView) mControllerBottom.findViewById(R.id.video_ratio);
-        mVideoCatalog = (TextView) mControllerBottom.findViewById(R.id.video_catalog);
         mVideoFullScreen = (ImageView) mControllerBottom.findViewById(R.id.video_full_screen);
         mVideoPlayState.setOnClickListener(mOnPlayerPauseClick);
         mVideoPlayState.setImageResource(R.drawable.ic_video_pause);
         mPlayerSeekBar.setOnSeekBarChangeListener(mSeekBarListener);
-        mVideoRatio.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mRatioDialog.show();
-            }
-        });
-        mVideoCatalog.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mCatalogDialog.show(video);
-            }
-        });
         mVideoFullScreen.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -251,20 +186,6 @@ public class VideoControllerViewMock extends FrameLayout implements GestureDetec
             }
         });
 
-        // complete
-        mViewComplete = findViewById(R.id.video_controller_complete);
-        mViewCompleteBack = (Button) findViewById(R.id.video_controller_complete_back);
-        mViewCompleteBack.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                hideComplete();
-
-                if (onVideoControlListener != null) {
-                    onVideoControlListener.onExit();
-                }
-            }
-        });
-
         // error
         mErrorView = (VideoErrorView) findViewById(R.id.video_controller_error);
         mErrorView.setOnVideoControlListener(new DefaultOnVideoControlListener() {
@@ -276,9 +197,6 @@ public class VideoControllerViewMock extends FrameLayout implements GestureDetec
 
         // loading
         mLoading = findViewById(R.id.video_loading);
-
-        // change
-        mVideoChangeFluency = (TextView) findViewById(R.id.video_change_fluency);
     }
 
 //    @Subscribe(threadMode = ThreadMode.MAIN)
@@ -468,9 +386,6 @@ public class VideoControllerViewMock extends FrameLayout implements GestureDetec
             mVideoRatio.setVisibility(GONE);
             mVideoCatalog.setVisibility(GONE);
             mVideoFullScreen.setVisibility(VISIBLE);
-
-            mCatalogDialog.setVisibility(GONE);
-            mRatioDialog.setVisibility(GONE);
 
             mScreenLock.setVisibility(GONE);
 
@@ -674,7 +589,6 @@ public class VideoControllerViewMock extends FrameLayout implements GestureDetec
         this.video = video;
 
         mVideoTitle.setText(video.vedioTitle);
-        mRatioDialog.setVideo(video);
 
         // TODO: 2017/6/13
 //        isPlayLocalVideo = startWithLocal;
@@ -761,10 +675,6 @@ public class VideoControllerViewMock extends FrameLayout implements GestureDetec
         Log.i("DDD", "playerStart");
 
         mVideoPlayState.setImageResource(R.drawable.ic_video_pause);
-        mVideoRatio.setText(VideoFluencyConstants.getFluencyTitle(video.getCurDefinition()));
-        if (mIsChangeFluency) {
-            completeUpdateFluency(video.getCurDefinition());
-        }
 
         if (mIsComplete) {
             reload();

@@ -2,13 +2,10 @@ package com.boredream.videoplayer.video;
 
 import android.content.Context;
 import android.content.res.Configuration;
-import android.text.SpannableString;
-import android.text.style.ForegroundColorSpan;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.SeekBar;
@@ -25,11 +22,9 @@ import java.util.Locale;
 /**
  * 视频控制器，可替换或自定义样式
  */
-public class MediaController extends FrameLayout {
+public class VideoController extends FrameLayout {
 
     public static final int DEFAULT_SHOW_TIME = 3000;
-
-    private boolean mIsChangeFluency; // 正在切换清晰度
 
     private View mControllerBack;
     private View mControllerTitle;
@@ -39,16 +34,9 @@ public class MediaController extends FrameLayout {
     private ImageView mVideoPlayState;
     private TextView mVideoProgress;
     private TextView mVideoDuration;
-    private TextView mVideoRatio;
-    private TextView mVideoCatalog;
     private ImageView mVideoFullScreen;
-    private VideoCatalogDialog mCatalogDialog;
-    private VideoRatioDialog mRatioDialog;
-    private View mViewComplete;
-    private Button mViewCompleteBack;
     private ImageView mScreenLock;
     private VideoErrorView mErrorView;
-    private TextView mVideoChangeFluency;
 
     private boolean isScreenLock;
     private boolean mShowing;
@@ -60,17 +48,17 @@ public class MediaController extends FrameLayout {
         this.onVideoControlListener = onVideoControlListener;
     }
 
-    public MediaController(Context context) {
+    public VideoController(Context context) {
         super(context);
         init();
     }
 
-    public MediaController(Context context, AttributeSet attrs) {
+    public VideoController(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
     }
 
-    public MediaController(Context context, AttributeSet attrs, int defStyleAttr) {
+    public VideoController(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init();
     }
@@ -80,28 +68,17 @@ public class MediaController extends FrameLayout {
 
         initControllerPanel();
 
-        mCatalogDialog = (VideoCatalogDialog) findViewById(R.id.video_catalog_dialog);
-        mRatioDialog = (VideoRatioDialog) findViewById(R.id.video_ratio_dialog);
-        mRatioDialog.setOnVideoControlListener(new DefaultOnVideoControlListener() {
-            @Override
-            public void onRatioSelected(String fluency) {
-                mRatioDialog.hide();
-
-                if (onVideoControlListener != null) {
-                    onVideoControlListener.onRatioSelected(fluency);
-                }
-            }
-        });
-        mCatalogDialog.setOnVideoControlListener(new DefaultOnVideoControlListener() {
-            @Override
-            public void onCatalogItemSelected(int videoIndex) {
-                mCatalogDialog.hide();
-
-                if (onVideoControlListener != null) {
-                    onVideoControlListener.onCatalogItemSelected(videoIndex);
-                }
-            }
-        });
+//        mCatalogDialog = (VideoCatalogDialog) findViewById(R.id.video_catalog_dialog);
+//        mCatalogDialog.setOnVideoControlListener(new DefaultOnVideoControlListener() {
+//            @Override
+//            public void onCatalogItemSelected(int videoIndex) {
+//                mCatalogDialog.hide();
+//
+//                if (onVideoControlListener != null) {
+//                    onVideoControlListener.onCatalogItemSelected(videoIndex);
+//                }
+//            }
+//        });
 
         setFocusable(true);
         setFocusableInTouchMode(true);
@@ -128,24 +105,10 @@ public class MediaController extends FrameLayout {
         mVideoPlayState = (ImageView) mControllerBottom.findViewById(R.id.player_pause);
         mVideoProgress = (TextView) mControllerBottom.findViewById(R.id.player_progress);
         mVideoDuration = (TextView) mControllerBottom.findViewById(R.id.player_duration);
-        mVideoRatio = (TextView) mControllerBottom.findViewById(R.id.video_ratio);
-        mVideoCatalog = (TextView) mControllerBottom.findViewById(R.id.video_catalog);
         mVideoFullScreen = (ImageView) mControllerBottom.findViewById(R.id.video_full_screen);
         mVideoPlayState.setOnClickListener(mOnPlayerPauseClick);
         mVideoPlayState.setImageResource(R.drawable.ic_video_pause);
         mPlayerSeekBar.setOnSeekBarChangeListener(mSeekListener);
-        mVideoRatio.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mRatioDialog.show();
-            }
-        });
-        mVideoCatalog.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-//                mCatalogDialog.show(video);
-            }
-        });
         mVideoFullScreen.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -166,20 +129,6 @@ public class MediaController extends FrameLayout {
             }
         });
 
-        // complete
-        mViewComplete = findViewById(R.id.video_controller_complete);
-        mViewCompleteBack = (Button) findViewById(R.id.video_controller_complete_back);
-        mViewCompleteBack.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                hideComplete();
-
-                if (onVideoControlListener != null) {
-                    onVideoControlListener.onExit();
-                }
-            }
-        });
-
         // error
         mErrorView = (VideoErrorView) findViewById(R.id.video_controller_error);
         mErrorView.setOnVideoControlListener(new DefaultOnVideoControlListener() {
@@ -188,9 +137,6 @@ public class MediaController extends FrameLayout {
                 retry(status);
             }
         });
-
-        // change
-        mVideoChangeFluency = (TextView) findViewById(R.id.video_change_fluency);
 
         mPlayerSeekBar.setMax(1000);
     }
@@ -427,18 +373,6 @@ public class MediaController extends FrameLayout {
         }
     };
 
-    public void showComplete() {
-        if (isScreenLock) {
-            unlock();
-        }
-        mViewComplete.setVisibility(View.VISIBLE);
-        hide();
-    }
-
-    public void hideComplete() {
-        mViewComplete.setVisibility(View.GONE);
-    }
-
     private void showError(int status) {
         mErrorView.showError(status);
         hide();
@@ -490,33 +424,6 @@ public class MediaController extends FrameLayout {
 //        }
     }
 
-    public void startUpdateFluency(String fluency) {
-        mIsChangeFluency = true;
-
-        String fluencyTitle = VideoFluencyConstants.getFluencyTitle(fluency);
-        String str = String.format("正在切换到%s，请稍候... ", fluencyTitle);
-        SpannableString ss = new SpannableString(str);
-        ForegroundColorSpan colorSpan = new ForegroundColorSpan(0xFFFD7D6F);
-        ss.setSpan(colorSpan, 5, 5 + fluencyTitle.length(), SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-        mVideoChangeFluency.setVisibility(View.VISIBLE);
-        mVideoChangeFluency.setText(ss);
-    }
-
-    public void completeUpdateFluency(String fluency) {
-        mIsChangeFluency = false;
-
-        String fluencyTitle = VideoFluencyConstants.getFluencyTitle(fluency);
-        String str = String.format("提醒您已切换到%s", fluencyTitle);
-        SpannableString ss = new SpannableString(str);
-        ForegroundColorSpan colorSpan = new ForegroundColorSpan(0xFFFD7D6F);
-        ss.setSpan(colorSpan, 7, 7 + fluencyTitle.length(), SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-        mVideoRatio.setText(fluencyTitle);
-        mVideoChangeFluency.setVisibility(View.VISIBLE);
-        mVideoChangeFluency.setText(ss);
-    }
-
     private OnClickListener mOnPlayerPauseClick = new OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -565,20 +472,10 @@ public class MediaController extends FrameLayout {
 
         if (isPortrait) {
             mControllerBack.setVisibility(VISIBLE);
-
-            mVideoRatio.setVisibility(GONE);
-            mVideoCatalog.setVisibility(GONE);
-            mVideoFullScreen.setVisibility(VISIBLE);
-
-            mCatalogDialog.setVisibility(GONE);
-            mRatioDialog.setVisibility(GONE);
-
+            mVideoFullScreen.setVisibility(View.VISIBLE);
             mScreenLock.setVisibility(GONE);
         } else {
-//            mVideoRatio.setVisibility(isPlayLocalVideo ? GONE : VISIBLE);
-            mVideoCatalog.setVisibility(VISIBLE);
-            mVideoFullScreen.setVisibility(GONE);
-
+            mVideoFullScreen.setVisibility(View.GONE);
             if (mShowing) {
                 mScreenLock.setVisibility(VISIBLE);
             }

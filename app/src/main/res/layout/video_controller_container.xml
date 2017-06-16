@@ -12,12 +12,12 @@
         android:id="@+id/video_loading"
         layout="@layout/video_controller_loading" />
 
-    <com.boredream.videoplayer.video.MediaController
+    <com.boredream.videoplayer.video.VideoController
         android:id="@+id/video_controller"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-    </com.boredream.videoplayer.video.MediaController>
+    </com.boredream.videoplayer.video.VideoController>
 
     <com.boredream.videoplayer.video.VideoSystemOverlay
         android:id="@+id/video_system_overlay"

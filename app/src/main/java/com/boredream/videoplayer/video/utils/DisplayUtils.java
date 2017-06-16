@@ -60,7 +60,7 @@ public class DisplayUtils {
     /**
      * 切换屏幕的方向.
      */
-    public static void toggleScreenOritation(Activity activity) {
+    public static void toggleScreenOrientation(Activity activity) {
         activity.setRequestedOrientation(isPortrait(activity)
                 ? ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
                 : ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);

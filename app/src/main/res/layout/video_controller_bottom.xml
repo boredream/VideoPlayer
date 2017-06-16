@@ -6,6 +6,7 @@
     android:background="@drawable/bg_bottom_shadow"
     android:gravity="center_vertical"
     android:orientation="horizontal"
+    android:paddingRight="14dp"
     android:visibility="gone">
 
     <ImageView
@@ -38,33 +39,13 @@
         android:textColor="@color/white"
         android:textSize="10sp" />
 
-    <TextView
-        android:id="@+id/video_ratio"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="4dp"
-        android:padding="8dp"
-        android:text="高清"
-        android:textColor="@color/white"
-        android:textSize="14sp"
-        android:visibility="gone" />
-
-    <TextView
-        android:id="@+id/video_catalog"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginRight="6dp"
-        android:padding="8dp"
-        android:text="选集"
-        android:textColor="@color/white"
-        android:textSize="14sp"
-        android:visibility="gone" />
-
     <ImageView
         android:id="@+id/video_full_screen"
-        android:layout_width="44dp"
+        android:layout_width="30dp"
         android:layout_height="44dp"
-        android:padding="14dp"
+        android:paddingBottom="14dp"
+        android:paddingLeft="14dp"
+        android:paddingTop="14dp"
         android:src="@drawable/ic_video_fullscreen" />
 
 </LinearLayout>

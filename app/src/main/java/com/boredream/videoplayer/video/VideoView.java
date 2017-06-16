@@ -17,11 +17,11 @@ import com.boredream.videoplayer.video.bean.VideoDetailInfo;
 import com.boredream.videoplayer.video.player.SimplePlayerCallback;
 import com.boredream.videoplayer.video.player.VideoPlayer;
 
-public class VideoControllerView extends VideoBehaviorView {
+public class VideoView extends VideoBehaviorView {
 
     private SurfaceView mSurfaceView;
     private View mLoading;
-    private MediaController mediaController;
+    private VideoController mediaController;
     private VideoSystemOverlay videoSystemOverlay;
     private VideoProgressOverlay videoProgressOverlay;
     private VideoPlayer mMediaPlayer;
@@ -35,17 +35,17 @@ public class VideoControllerView extends VideoBehaviorView {
         return mediaController.isLock();
     }
 
-    public VideoControllerView(Context context) {
+    public VideoView(Context context) {
         super(context);
         init();
     }
 
-    public VideoControllerView(Context context, AttributeSet attrs) {
+    public VideoView(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
     }
 
-    public VideoControllerView(Context context, AttributeSet attrs, int defStyleAttr) {
+    public VideoView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init();
     }
@@ -56,7 +56,7 @@ public class VideoControllerView extends VideoBehaviorView {
 
         mSurfaceView = (SurfaceView) findViewById(R.id.video_surface);
         mLoading = findViewById(R.id.video_loading);
-        mediaController = (MediaController) findViewById(R.id.video_controller);
+        mediaController = (VideoController) findViewById(R.id.video_controller);
         videoSystemOverlay = (VideoSystemOverlay) findViewById(R.id.video_system_overlay);
         videoProgressOverlay = (VideoProgressOverlay) findViewById(R.id.video_progress_overlay);
 
@@ -91,6 +91,12 @@ public class VideoControllerView extends VideoBehaviorView {
         mMediaPlayer.setCallback(new SimplePlayerCallback() {
             // TODO: 2017/6/13
 
+            @Override
+            public void onError(MediaPlayer mp, int what, int extra) {
+                super.onError(mp, what, extra);
+
+                // TODO: 2017/6/16  
+            }
 
             @Override
             public void onLoadingChanged(boolean isShow) {

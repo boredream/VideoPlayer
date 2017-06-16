@@ -11,6 +11,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 
+// TODO: 2017/6/16 避免继承
 public class VideoBehaviorView extends FrameLayout implements GestureDetector.OnGestureListener {
 
     private GestureDetector mGestureDetector;

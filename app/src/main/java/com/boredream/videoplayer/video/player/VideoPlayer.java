@@ -40,9 +40,7 @@ public class VideoPlayer {
             Log.d(TAG, "Error: " + framework_err + "," + impl_err);
             curStatus = STATE_ERROR;
             if (callback != null) {
-                if (callback.onError(player, framework_err, impl_err)) {
-                    return true;
-                }
+                callback.onError(player, framework_err, impl_err);
             }
             return true;
         }
@@ -189,12 +187,12 @@ public class VideoPlayer {
         return 0;
     }
 
-    public void seekTo(int msec) {
+    public void seekTo(int progress) {
         if (isInPlaybackState()) {
-            player.seekTo(msec);
+            player.seekTo(progress);
             seekWhenPrepared = 0;
         } else {
-            seekWhenPrepared = msec;
+            seekWhenPrepared = progress;
         }
     }
 

@@ -5,12 +5,12 @@
     android:layout_height="match_parent"
     tools:context=".VideoDetailActivity">
 
-    <com.boredream.videoplayer.video.VideoControllerView
+    <com.boredream.videoplayer.video.VideoView
         android:id="@+id/vv"
         android:layout_width="match_parent"
         android:layout_height="200dp"
         android:background="#888">
 
-    </com.boredream.videoplayer.video.VideoControllerView>
+    </com.boredream.videoplayer.video.VideoView>
 
 </LinearLayout>

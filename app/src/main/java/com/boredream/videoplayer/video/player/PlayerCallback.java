@@ -11,7 +11,7 @@ public interface PlayerCallback {
 
     void onCompletion(MediaPlayer mp);
 
-    boolean onError(MediaPlayer mp, int what, int extra);
+    void onError(MediaPlayer mp, int what, int extra);
 
     void onLoadingChanged(boolean isShow);
 }

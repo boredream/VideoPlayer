@@ -8,13 +8,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.WindowManager;
 
 import com.boredream.videoplayer.video.DefaultOnVideoControlListener;
-import com.boredream.videoplayer.video.VideoControllerView;
+import com.boredream.videoplayer.video.VideoView;
 import com.boredream.videoplayer.video.bean.VideoDetailInfo;
 import com.boredream.videoplayer.video.utils.DisplayUtils;
 
 public class VideoDetailActivity extends AppCompatActivity {
 
-    private VideoControllerView videoView;
+    private VideoView videoView;
 
     public static void start(Context context, VideoDetailInfo info) {
         Intent intent = new Intent(context, VideoDetailActivity.class);
@@ -29,11 +29,11 @@ public class VideoDetailActivity extends AppCompatActivity {
 
         VideoDetailInfo info = (VideoDetailInfo) getIntent().getSerializableExtra("info");
 
-        videoView = (VideoControllerView) findViewById(R.id.vv);
+        videoView = (VideoView) findViewById(R.id.vv);
         videoView.setOnVideoControlListener(new DefaultOnVideoControlListener() {
             @Override
             public void onFullScreen() {
-                DisplayUtils.toggleScreenOritation(VideoDetailActivity.this);
+                DisplayUtils.toggleScreenOrientation(VideoDetailActivity.this);
             }
         });
         videoView.startPlayVideo(info);
@@ -53,10 +53,9 @@ public class VideoDetailActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         if (!DisplayUtils.isPortrait(this)) {
-            if(videoView.isLock()) {
-                return;
+            if(!videoView.isLock()) {
+                DisplayUtils.toggleScreenOrientation(this);
             }
-            DisplayUtils.toggleScreenOritation(this);
         } else {
             super.onBackPressed();
         }
