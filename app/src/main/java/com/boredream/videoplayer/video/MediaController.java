@@ -11,7 +11,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -20,7 +19,6 @@ import com.boredream.videoplayer.R;
 import com.boredream.videoplayer.video.player.VideoPlayer;
 import com.boredream.videoplayer.video.utils.DisplayUtils;
 import com.boredream.videoplayer.video.utils.NetworkUtils;
-import com.boredream.videoplayer.video.utils.ScreenUtils;
 
 import java.util.Locale;
 
@@ -28,6 +26,8 @@ import java.util.Locale;
  * 视频控制器，可替换或自定义样式
  */
 public class MediaController extends FrameLayout {
+
+    public static final int DEFAULT_SHOW_TIME = 3000;
 
     private boolean mIsChangeFluency; // 正在切换清晰度
 
@@ -87,18 +87,19 @@ public class MediaController extends FrameLayout {
             public void onRatioSelected(String fluency) {
                 mRatioDialog.hide();
 
-//                if (onVideoControlListener != null) {
-//                    onVideoControlListener.onRatioSelected(fluency);
-//                }
+                if (onVideoControlListener != null) {
+                    onVideoControlListener.onRatioSelected(fluency);
+                }
             }
         });
         mCatalogDialog.setOnVideoControlListener(new DefaultOnVideoControlListener() {
             @Override
             public void onCatalogItemSelected(int videoIndex) {
                 mCatalogDialog.hide();
-//                if (onVideoControlListener != null) {
-//                    onVideoControlListener.onCatalogItemSelected(videoIndex);
-//                }
+
+                if (onVideoControlListener != null) {
+                    onVideoControlListener.onCatalogItemSelected(videoIndex);
+                }
             }
         });
 
@@ -113,9 +114,9 @@ public class MediaController extends FrameLayout {
         mControllerBack.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-//                if (onVideoControlListener != null) {
-//                    onVideoControlListener.onBack();
-//                }
+                if (onVideoControlListener != null) {
+                    onVideoControlListener.onBack();
+                }
             }
         });
         // top
@@ -161,7 +162,6 @@ public class MediaController extends FrameLayout {
             public void onClick(View v) {
                 if (isScreenLock) unlock();
                 else lock();
-
                 show();
             }
         });
@@ -174,9 +174,9 @@ public class MediaController extends FrameLayout {
             public void onClick(View v) {
                 hideComplete();
 
-//                if (onVideoControlListener != null) {
-//                    onVideoControlListener.onExit();
-//                }
+                if (onVideoControlListener != null) {
+                    onVideoControlListener.onExit();
+                }
             }
         });
 
@@ -209,40 +209,34 @@ public class MediaController extends FrameLayout {
     }
 
     public void show() {
-        show(3000);  // TODO: 2017/6/14 default time 3000
+        show(DEFAULT_SHOW_TIME);
     }
 
     public void show(int timeout) {
         Log.i("DDD", "show: " + timeout);
 
-        if (!mShowing) {
-            // TODO: 2017/6/14
-            setProgress();
+        setProgress();
 
-            if (!isScreenLock) {
-                mControllerBack.setVisibility(VISIBLE);
-                mControllerTitle.setVisibility(VISIBLE);
-                mControllerBottom.setVisibility(VISIBLE);
-            } else {
-                if (!ScreenUtils.isPortrait(getContext())) {
-                    mControllerBack.setVisibility(GONE);
-                }
-                mControllerTitle.setVisibility(GONE);
-                mControllerBottom.setVisibility(GONE);
+        if (!isScreenLock) {
+            mControllerBack.setVisibility(VISIBLE);
+            mControllerTitle.setVisibility(VISIBLE);
+            mControllerBottom.setVisibility(VISIBLE);
+        } else {
+            if (!DisplayUtils.isPortrait(getContext())) {
+                mControllerBack.setVisibility(GONE);
             }
-
-            if (!ScreenUtils.isPortrait(getContext())) {
-                mScreenLock.setVisibility(VISIBLE);
-            }
-
-            mShowing = true;
+            mControllerTitle.setVisibility(GONE);
+            mControllerBottom.setVisibility(GONE);
         }
+
+        if (!DisplayUtils.isPortrait(getContext())) {
+            mScreenLock.setVisibility(VISIBLE);
+        }
+
+        mShowing = true;
 
         updatePausePlay();
 
-        // cause the progress bar to be updated even if mShowing
-        // was already true.  This happens, for example, if we're
-        // paused with the progress bar showing the user hits play.
         post(mShowProgress);
 
         if (timeout > 0) {
@@ -256,7 +250,7 @@ public class MediaController extends FrameLayout {
             return;
         }
 
-        if (!ScreenUtils.isPortrait(getContext())) {
+        if (!DisplayUtils.isPortrait(getContext())) {
             // 横屏才消失
             mControllerBack.setVisibility(GONE);
         }
@@ -264,8 +258,7 @@ public class MediaController extends FrameLayout {
         mControllerBottom.setVisibility(GONE);
         mScreenLock.setVisibility(GONE);
 
-        // TODO: 2017/6/14 隐藏后不再更新进度条
-//        removeCallbacks(mShowProgress);
+        removeCallbacks(mShowProgress);
 
         mShowing = false;
     }
@@ -361,15 +354,20 @@ public class MediaController extends FrameLayout {
 //        }
     }
 
+    public void release() {
+        removeCallbacks(mShowProgress);
+        removeCallbacks(mFadeOut);
+    }
+
     private void retry(int status) {
         Log.i("DDD", "retry " + status);
 
         switch (status) {
             case VideoErrorView.STATUS_VIDEO_DETAIL_ERROR:
                 // 传递给activity
-//                if (onVideoControlListener != null) {
-//                    onVideoControlListener.onRetry(status);
-//                }
+                if (onVideoControlListener != null) {
+                    onVideoControlListener.onRetry(status);
+                }
                 break;
             case VideoErrorView.STATUS_VIDEO_SRC_ERROR:
 //                reload();
@@ -394,18 +392,6 @@ public class MediaController extends FrameLayout {
         }
     }
 
-    private boolean isDragSeeking; // 进度条正在手动拖动
-    // There are two scenarios that can trigger the seekbar listener to trigger:
-    //
-    // The first is the user using the touchpad to adjust the posititon of the
-    // seekbar's thumb. In this case onStartTrackingTouch is called followed by
-    // a number of onProgressChanged notifications, concluded by onStopTrackingTouch.
-    // We're setting the field "mDragging" to true for the duration of the dragging
-    // session to avoid jumps in the position in case of ongoing playback.
-    //
-    // The second scenario involves the user operating the scroll ball, in this
-    // case there WON'T BE onStartTrackingTouch/onStopTrackingTouch notifications,
-    // we will simply apply the updated position without suspending regular updates.
     private final SeekBar.OnSeekBarChangeListener mSeekListener = new SeekBar.OnSeekBarChangeListener() {
         @Override
         public void onStartTrackingTouch(SeekBar bar) {
@@ -413,19 +399,12 @@ public class MediaController extends FrameLayout {
 
             mDragging = true;
 
-            // By removing these pending progress messages we make sure
-            // that a) we won't update the progress while the user adjusts
-            // the seekbar and b) once the user is done dragging the thumb
-            // we will post one of these messages to the queue again and
-            // this ensures that there will be exactly one message queued up.
             removeCallbacks(mShowProgress);
         }
 
         @Override
         public void onProgressChanged(SeekBar bar, int progress, boolean fromuser) {
             if (!fromuser) {
-                // We're not interested in programmatically generated changes to
-                // the progress bar's position.
                 return;
             }
 
@@ -440,15 +419,10 @@ public class MediaController extends FrameLayout {
         @Override
         public void onStopTrackingTouch(SeekBar bar) {
             mPlayer.seekTo((int) mDraggingProgress);
+            play();
             mDragging = false;
             mDraggingProgress = 0;
-            setProgress();
-            updatePausePlay();
-            show();
 
-            // Ensure that progress is properly updated in the future,
-            // the call to show() does not guarantee this because it is a
-            // no-op if we are already showing.
             post(mShowProgress);
         }
     };
@@ -478,6 +452,10 @@ public class MediaController extends FrameLayout {
         if (isScreenLock) {
             unlock();
         }
+    }
+
+    public boolean isLock() {
+        return isScreenLock;
     }
 
     private void lock() {
@@ -565,15 +543,25 @@ public class MediaController extends FrameLayout {
         updatePausePlay();
     }
 
+    private void pause() {
+        mPlayer.pause();
+        removeCallbacks(mFadeOut);
+        updatePausePlay();
+    }
+
+    private void play() {
+        mPlayer.start();
+        show();
+    }
+
     @Override
     protected void onConfigurationChanged(Configuration newConfig) {
-        Log.i("DDD", "onConfigurationChanged ... isPor = " + ScreenUtils.isPortrait(getContext()));
         super.onConfigurationChanged(newConfig);
         toggleVideoLayoutParams();
     }
 
     void toggleVideoLayoutParams() {
-        final boolean isPortrait = ScreenUtils.isPortrait(getContext());
+        final boolean isPortrait = DisplayUtils.isPortrait(getContext());
 
         if (isPortrait) {
             mControllerBack.setVisibility(VISIBLE);
@@ -586,9 +574,6 @@ public class MediaController extends FrameLayout {
             mRatioDialog.setVisibility(GONE);
 
             mScreenLock.setVisibility(GONE);
-
-            ((LinearLayout.LayoutParams) mViewCompleteBack.getLayoutParams()).topMargin =
-                    DisplayUtils.dp2px(getContext(), 26);
         } else {
 //            mVideoRatio.setVisibility(isPlayLocalVideo ? GONE : VISIBLE);
             mVideoCatalog.setVisibility(VISIBLE);
@@ -597,9 +582,6 @@ public class MediaController extends FrameLayout {
             if (mShowing) {
                 mScreenLock.setVisibility(VISIBLE);
             }
-
-            ((LinearLayout.LayoutParams) mViewCompleteBack.getLayoutParams()).topMargin =
-                    DisplayUtils.dp2px(getContext(), 46);
         }
     }
 

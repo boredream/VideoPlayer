@@ -53,6 +53,9 @@ public class VideoDetailActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         if (!DisplayUtils.isPortrait(this)) {
+            if(videoView.isLock()) {
+                return;
+            }
             DisplayUtils.toggleScreenOritation(this);
         } else {
             super.onBackPressed();

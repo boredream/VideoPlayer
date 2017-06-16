@@ -128,7 +128,6 @@ public class VideoPlayer {
             // we don't set the target state here either, but preserve the
             // target state that was there before.
             curStatus = STATE_PREPARING;
-//            attachMediaController();
         } catch (IOException | IllegalArgumentException ex) {
             Log.w(TAG, "Unable to open content: " + path, ex);
             curStatus = STATE_ERROR;
@@ -216,8 +215,5 @@ public class VideoPlayer {
                 curStatus != STATE_IDLE &&
                 curStatus != STATE_PREPARING);
     }
-
-    // TODO: 2017/6/8 can pause see backward forward
-
 
 }

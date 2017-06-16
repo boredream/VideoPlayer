@@ -26,14 +26,13 @@ public class VideoControllerView extends VideoBehaviorView {
     private VideoProgressOverlay videoProgressOverlay;
     private VideoPlayer mMediaPlayer;
 
-    private boolean mIsScreenLock;
     private boolean isPlayLocalVideo;
     private VideoDetailInfo video;
     private int initWidth;
     private int initHeight;
 
-    public boolean isLocked() {
-        return mIsScreenLock;
+    public boolean isLock() {
+        return mediaController.isLock();
     }
 
     public VideoControllerView(Context context) {
@@ -157,11 +156,7 @@ public class VideoControllerView extends VideoBehaviorView {
 
     public void release() {
         mMediaPlayer.stop();
-
-//        if (mWeakReferenceHandler != null) {
-//            mWeakReferenceHandler.cancel();
-//            mWeakReferenceHandler = null;
-//        }
+        mediaController.release();
     }
 
     public void clearVideo() {

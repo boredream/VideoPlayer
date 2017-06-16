@@ -34,7 +34,6 @@ import com.boredream.videoplayer.video.player.SimplePlayerCallback;
 import com.boredream.videoplayer.video.player.VideoPlayer;
 import com.boredream.videoplayer.video.utils.DisplayUtils;
 import com.boredream.videoplayer.video.utils.NetworkUtils;
-import com.boredream.videoplayer.video.utils.ScreenUtils;
 import com.boredream.videoplayer.video.utils.StringUtils;
 
 public class VideoControllerViewMock extends FrameLayout implements GestureDetector.OnGestureListener, View.OnTouchListener {
@@ -455,13 +454,12 @@ public class VideoControllerViewMock extends FrameLayout implements GestureDetec
 
     @Override
     protected void onConfigurationChanged(Configuration newConfig) {
-        Log.i("DDD", "onConfigurationChanged ... isPor = " + ScreenUtils.isPortrait(getContext()));
         super.onConfigurationChanged(newConfig);
         toggleVideoLayoutParams();
     }
 
     void toggleVideoLayoutParams() {
-        final boolean isPortrait = ScreenUtils.isPortrait(getContext());
+        final boolean isPortrait = DisplayUtils.isPortrait(getContext());
 
         if (isPortrait) {
             mControllerBack.setVisibility(VISIBLE);
@@ -830,14 +828,14 @@ public class VideoControllerViewMock extends FrameLayout implements GestureDetec
             mControllerTitle.setVisibility(VISIBLE);
             mControllerBottom.setVisibility(VISIBLE);
         } else {
-            if (!ScreenUtils.isPortrait(getContext())) {
+            if (!DisplayUtils.isPortrait(getContext())) {
                 mControllerBack.setVisibility(GONE);
             }
             mControllerTitle.setVisibility(GONE);
             mControllerBottom.setVisibility(GONE);
         }
 
-        if (!ScreenUtils.isPortrait(getContext())) {
+        if (!DisplayUtils.isPortrait(getContext())) {
             mScreenLock.setVisibility(VISIBLE);
         }
 
@@ -845,7 +843,7 @@ public class VideoControllerViewMock extends FrameLayout implements GestureDetec
     }
 
     private void dismissVideoPanel() {
-        if (!ScreenUtils.isPortrait(getContext())) {
+        if (!DisplayUtils.isPortrait(getContext())) {
             // 横屏才消失
             mControllerBack.setVisibility(GONE);
         }
