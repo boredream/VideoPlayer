@@ -2,12 +2,12 @@ package com.boredream.videoplayer.video.bean;
 
 public class VideoDetailInfo implements IVideoInfo {
 
-    public String videoTitle;
+    public String title;
     public String videoPath;
 
     @Override
     public String getVideoTitle() {
-        return videoTitle;
+        return title;
     }
 
     @Override

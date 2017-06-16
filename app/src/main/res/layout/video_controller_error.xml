@@ -22,7 +22,7 @@
         android:id="@+id/video_error_retry"
         android:layout_width="160dp"
         android:layout_height="35dp"
-        android:layout_marginTop="46dp"
+        android:layout_marginTop="26dp"
         android:background="@drawable/correct_white_stroke"
         android:text="点此重试"
         android:textColor="@color/white"

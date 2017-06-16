@@ -1,18 +1,15 @@
 package com.boredream.videoplayer.video;
 
 import android.content.Context;
-import android.content.res.Configuration;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.boredream.videoplayer.R;
-import com.boredream.videoplayer.video.utils.DisplayUtils;
 
 
 public class VideoErrorView extends FrameLayout {
@@ -49,9 +46,6 @@ public class VideoErrorView extends FrameLayout {
 
     private void init() {
         LayoutInflater.from(getContext()).inflate(R.layout.video_controller_error, this);
-
-        // TODO: 2017/6/7 check me
-//        setOnTouchListener((v, event) -> true);
 
         video_error_info = (TextView) findViewById(R.id.video_error_info);
         video_error_retry = (Button) findViewById(R.id.video_error_retry);
@@ -106,19 +100,5 @@ public class VideoErrorView extends FrameLayout {
 
     public void setOnVideoControlListener(OnVideoControlListener onVideoControlListener) {
         this.onVideoControlListener = onVideoControlListener;
-    }
-
-    @Override
-    protected void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-
-        if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
-            ((LinearLayout.LayoutParams) video_error_retry.getLayoutParams()).topMargin
-                    = DisplayUtils.dp2px(getContext(), 26);
-        } else if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            ((LinearLayout.LayoutParams) video_error_retry.getLayoutParams()).topMargin
-                    = DisplayUtils.dp2px(getContext(), 46);
-        }
-
     }
 }

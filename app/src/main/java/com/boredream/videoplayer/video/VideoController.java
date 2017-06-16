@@ -13,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.boredream.videoplayer.R;
+import com.boredream.videoplayer.video.bean.IVideoInfo;
 import com.boredream.videoplayer.video.player.VideoPlayer;
 import com.boredream.videoplayer.video.utils.DisplayUtils;
 import com.boredream.videoplayer.video.utils.NetworkUtils;
@@ -40,8 +41,9 @@ public class VideoController extends FrameLayout {
 
     private boolean isScreenLock;
     private boolean mShowing;
+    private boolean mAllowUnWifiPlay;
     private VideoPlayer mPlayer;
-
+    private IVideoInfo videoInfo;
     private OnVideoControlListener onVideoControlListener;
 
     public void setOnVideoControlListener(OnVideoControlListener onVideoControlListener) {
@@ -67,18 +69,6 @@ public class VideoController extends FrameLayout {
         LayoutInflater.from(getContext()).inflate(R.layout.video_media_controller, this);
 
         initControllerPanel();
-
-//        mCatalogDialog = (VideoCatalogDialog) findViewById(R.id.video_catalog_dialog);
-//        mCatalogDialog.setOnVideoControlListener(new DefaultOnVideoControlListener() {
-//            @Override
-//            public void onCatalogItemSelected(int videoIndex) {
-//                mCatalogDialog.hide();
-//
-//                if (onVideoControlListener != null) {
-//                    onVideoControlListener.onCatalogItemSelected(videoIndex);
-//                }
-//            }
-//        });
 
         setFocusable(true);
         setFocusableInTouchMode(true);
@@ -146,8 +136,9 @@ public class VideoController extends FrameLayout {
         updatePausePlay();
     }
 
-    public void setTitle(String title) {
-        mVideoTitle.setText(title);
+    public void setVideoInfo(IVideoInfo videoInfo) {
+        this.videoInfo = videoInfo;
+        mVideoTitle.setText(videoInfo.getVideoTitle());
     }
 
     public void toggleDisplay() {
@@ -163,8 +154,6 @@ public class VideoController extends FrameLayout {
     }
 
     public void show(int timeout) {
-        Log.i("DDD", "show: " + timeout);
-
         setProgress();
 
         if (!isScreenLock) {
@@ -272,36 +261,43 @@ public class VideoController extends FrameLayout {
      * 判断显示错误类型
      */
     public void checkShowError(boolean isNetChanged) {
-//        boolean isConnect = NetworkUtils.isNetworkConnected(getContext());
-//        boolean isMobileNet = NetworkUtils.isMobileConnected(getContext());
-//        boolean isWifiNet = NetworkUtils.isWifiConnected(getContext());
-//
-//        if (isConnect) {
-//            // 如果已经联网
-//            if (mErrorView.getCurStatus() == VideoErrorView.STATUS_NO_NETWORK_ERROR && !(isMobileNet && !isWifiNet)) {
-//                // 如果之前是无网络，应该提示“网络已经重新连上，请重试”，这里暂不处理
-//            } else if (video == null) {
-//                // 优先判断是否有video数据
-//                showError(VideoErrorView.STATUS_VIDEO_DETAIL_ERROR);
-//            } else if (isMobileNet && !isWifiNet && !mAllowUnWifiPlay && !isPlayLocalVideo) {
-//                // 如果是手机流量，且未同意过播放，且非本地视频，则提示错误
-//                mErrorView.showError(VideoErrorView.STATUS_UN_WIFI_ERROR);
-//
-//                if (isNetChanged) {
-//                    mMediaPlayer.pause();
-//                } else {
-//                    mMediaPlayer.stop();
-//                }
-//            } else if (isWifiNet && isNetChanged && mErrorView.getCurStatus() == VideoErrorView.STATUS_UN_WIFI_ERROR) {
-//                // 如果是wifi流量，且之前是非wifi错误，则恢复播放
-//                playFromUnWifiError();
-//            } else if (!isNetChanged) {
-//                showError(VideoErrorView.STATUS_VIDEO_SRC_ERROR);
-//            }
-//        } else if (!isPlayLocalVideo) {
-//            // 没网，且不是本地视频，则提示网络错误
-//            showError(VideoErrorView.STATUS_NO_NETWORK_ERROR);
-//        }
+        boolean isConnect = NetworkUtils.isNetworkConnected(getContext());
+        boolean isMobileNet = NetworkUtils.isMobileConnected(getContext());
+        boolean isWifiNet = NetworkUtils.isWifiConnected(getContext());
+
+        if (isConnect) {
+            // 如果已经联网
+            if (mErrorView.getCurStatus() == VideoErrorView.STATUS_NO_NETWORK_ERROR && !(isMobileNet && !isWifiNet)) {
+                // 如果之前是无网络，应该提示“网络已经重新连上，请重试”，这里暂不处理
+            } else if (videoInfo == null) {
+                // 优先判断是否有video数据
+                showError(VideoErrorView.STATUS_VIDEO_DETAIL_ERROR);
+            } else if (isMobileNet && !isWifiNet && !mAllowUnWifiPlay) {
+                // 如果是手机流量，且未同意过播放，且非本地视频，则提示错误
+                mErrorView.showError(VideoErrorView.STATUS_UN_WIFI_ERROR);
+
+                if (isNetChanged) {
+                    mPlayer.pause();
+                } else {
+                    mPlayer.stop();
+                }
+            } else if (isWifiNet && isNetChanged && mErrorView.getCurStatus() == VideoErrorView.STATUS_UN_WIFI_ERROR) {
+                // 如果是wifi流量，且之前是非wifi错误，则恢复播放
+                playFromUnWifiError();
+            } else if (!isNetChanged) {
+                showError(VideoErrorView.STATUS_VIDEO_SRC_ERROR);
+            }
+        } else {
+            showError(VideoErrorView.STATUS_NO_NETWORK_ERROR);
+        }
+    }
+
+    public void hideErrorView() {
+        mErrorView.hideError();
+    }
+
+    private void reload() {
+        mPlayer.restart();
     }
 
     public void release() {
@@ -320,7 +316,7 @@ public class VideoController extends FrameLayout {
                 }
                 break;
             case VideoErrorView.STATUS_VIDEO_SRC_ERROR:
-//                reload();
+                reload();
                 break;
             case VideoErrorView.STATUS_UN_WIFI_ERROR:
                 allowUnWifiPlay();
@@ -328,15 +324,15 @@ public class VideoController extends FrameLayout {
             case VideoErrorView.STATUS_NO_NETWORK_ERROR:
                 // 无网络时
                 if (NetworkUtils.isNetworkConnected(getContext())) {
-//                    if (video == null) {
-//                        // 如果video为空，重新请求详情
-//                        retry(VideoErrorView.STATUS_VIDEO_DETAIL_ERROR);
-//                    } else {
-//                        // 如果有video，重新加载视频资源
-//                        reload();
-//                    }
+                    if (videoInfo == null) {
+                        // 如果video为空，重新请求详情
+                        retry(VideoErrorView.STATUS_VIDEO_DETAIL_ERROR);
+                    } else {
+                        // 如果有video，重新加载视频资源
+                        reload();
+                    }
                 } else {
-                    Toast.makeText(getContext(), "没有网络", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "网络未连接", Toast.LENGTH_SHORT).show();
                 }
                 break;
         }
@@ -381,10 +377,6 @@ public class VideoController extends FrameLayout {
         mErrorView.showError(status);
         hide();
 //        hideLoading();
-//        hideComplete();
-//        if (mMediaPlayer != null) {
-//            mMediaPlayer.stop();
-//        }
 
         // 如果提示了错误，则看需要解锁
         if (isScreenLock) {

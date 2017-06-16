@@ -74,48 +74,50 @@ public class VideoPlayer {
         reset();
 
         try {
-            player = new MediaPlayer();
-            player.setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
-                @Override
-                public void onBufferingUpdate(MediaPlayer mp, int percent) {
-                    currentBufferPercentage = percent;
-                    if (callback != null) callback.onBufferingUpdate(mp, percent);
-                }
-            });
-            player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                @Override
-                public void onCompletion(MediaPlayer mp) {
-                    curStatus = STATE_PLAYBACK_COMPLETED;
-                    if (callback != null) callback.onCompletion(mp);
-                }
-            });
-            player.setOnInfoListener(new MediaPlayer.OnInfoListener() {
-                @Override
-                public boolean onInfo(MediaPlayer mp, int what, int extra) {
-                    if (callback != null) {
-                        if(what == MediaPlayer.MEDIA_INFO_BUFFERING_START) {
-                            callback.onLoadingChanged(true);
-                        } else if(what == MediaPlayer.MEDIA_INFO_BUFFERING_END) {
-                            callback.onLoadingChanged(false);
-                        }
+            if(player == null) {
+                player = new MediaPlayer();
+                player.setOnBufferingUpdateListener(new MediaPlayer.OnBufferingUpdateListener() {
+                    @Override
+                    public void onBufferingUpdate(MediaPlayer mp, int percent) {
+                        currentBufferPercentage = percent;
+                        if (callback != null) callback.onBufferingUpdate(mp, percent);
                     }
-                    return false;
-                }
-            });
-            player.setOnErrorListener(mErrorListener);
-            player.setOnVideoSizeChangedListener(new MediaPlayer.OnVideoSizeChangedListener() {
-                @Override
-                public void onVideoSizeChanged(MediaPlayer mp, int width, int height) {
-                    if (callback != null) callback.onVideoSizeChanged(mp, width, height);
-                }
-            });
-            player.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                @Override
-                public void onPrepared(MediaPlayer mp) {
-                    curStatus = STATE_PREPARED;
-                    if (callback != null) callback.onPrepared(mp);
-                }
-            });
+                });
+                player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                    @Override
+                    public void onCompletion(MediaPlayer mp) {
+                        curStatus = STATE_PLAYBACK_COMPLETED;
+                        if (callback != null) callback.onCompletion(mp);
+                    }
+                });
+                player.setOnInfoListener(new MediaPlayer.OnInfoListener() {
+                    @Override
+                    public boolean onInfo(MediaPlayer mp, int what, int extra) {
+                        if (callback != null) {
+                            if(what == MediaPlayer.MEDIA_INFO_BUFFERING_START) {
+                                callback.onLoadingChanged(true);
+                            } else if(what == MediaPlayer.MEDIA_INFO_BUFFERING_END) {
+                                callback.onLoadingChanged(false);
+                            }
+                        }
+                        return false;
+                    }
+                });
+                player.setOnErrorListener(mErrorListener);
+                player.setOnVideoSizeChangedListener(new MediaPlayer.OnVideoSizeChangedListener() {
+                    @Override
+                    public void onVideoSizeChanged(MediaPlayer mp, int width, int height) {
+                        if (callback != null) callback.onVideoSizeChanged(mp, width, height);
+                    }
+                });
+                player.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                    @Override
+                    public void onPrepared(MediaPlayer mp) {
+                        curStatus = STATE_PREPARED;
+                        if (callback != null) callback.onPrepared(mp);
+                    }
+                });
+            }
             currentBufferPercentage = 0;
             player.setDataSource(path);
             player.setDisplay(surfaceHolder);
@@ -139,6 +141,11 @@ public class VideoPlayer {
             player.start();
             curStatus = STATE_PLAYING;
         }
+    }
+
+    public void restart() {
+        Log.i("DDD", "restart");
+        openVideo();
     }
 
     public void pause() {

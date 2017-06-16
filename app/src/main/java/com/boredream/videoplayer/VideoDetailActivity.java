@@ -31,6 +31,12 @@ public class VideoDetailActivity extends AppCompatActivity {
 
         videoView = (VideoView) findViewById(R.id.vv);
         videoView.setOnVideoControlListener(new DefaultOnVideoControlListener() {
+
+            @Override
+            public void onBack() {
+                onBackPressed();
+            }
+
             @Override
             public void onFullScreen() {
                 DisplayUtils.toggleScreenOrientation(VideoDetailActivity.this);
@@ -48,6 +54,20 @@ public class VideoDetailActivity extends AppCompatActivity {
         } else if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        videoView.onStop();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        videoView.onStart();
     }
 
     @Override

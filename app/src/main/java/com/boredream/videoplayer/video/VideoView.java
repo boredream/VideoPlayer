@@ -26,7 +26,6 @@ public class VideoView extends VideoBehaviorView {
     private VideoProgressOverlay videoProgressOverlay;
     private VideoPlayer mMediaPlayer;
 
-    private IVideoInfo video;
     private int initWidth;
     private int initHeight;
 
@@ -88,13 +87,12 @@ public class VideoView extends VideoBehaviorView {
     private void initPlayer() {
         mMediaPlayer = new VideoPlayer();
         mMediaPlayer.setCallback(new SimplePlayerCallback() {
-            // TODO: 2017/6/13
 
             @Override
             public void onError(MediaPlayer mp, int what, int extra) {
-                super.onError(mp, what, extra);
-
-                // TODO: 2017/6/16  
+                // TODO: 2017/6/16
+                Log.i("DDD", "~~~~~~~ onError: ");
+                reConnect();
             }
 
             @Override
@@ -109,6 +107,7 @@ public class VideoView extends VideoBehaviorView {
 
                 mMediaPlayer.start();
                 mediaController.show();
+                mediaController.hideErrorView();
             }
         });
         mediaController.setMediaPlayer(mMediaPlayer);
@@ -123,37 +122,34 @@ public class VideoView extends VideoBehaviorView {
     }
 
     private int reConnect = 0;
-    private long reConnectPosition = 0;
+    private long reConnectPosition = 0; // TODO: 2017/6/16  
 
     private void reConnect() {
-        if (mMediaPlayer.getVideoPath() != null && reConnect < 2) {
-            // 重连两次
+        Log.i("DDD", "reConnect: " + reConnect);
+        if (mMediaPlayer.getVideoPath() != null && reConnect < 1) {
             reConnect++;
             reConnectPosition = mMediaPlayer.getCurrentPosition();
-            mMediaPlayer.stop();
-            mMediaPlayer.start();
+            mMediaPlayer.openVideo();
         } else {
             reConnect = 0;
             reConnectPosition = 0;
-//            checkShowError(false);
+            mediaController.checkShowError(false);
         }
     }
 
     private boolean isBackgroundPause;
 
-    public void onPause() {
+    public void onStop() {
         if (mMediaPlayer.isPlaying()) {
             // 如果已经开始且在播放，则暂停同时记录状态
-            Log.i("DDD", "isBackgroundPause");
             isBackgroundPause = true;
             playerPause();
         }
     }
 
-    public void onResume() {
+    public void onStart() {
         if (isBackgroundPause) {
             // 如果切换到后台暂停，后又切回来，则继续播放
-            Log.i("DDD", "isBackgroundPause resume");
             isBackgroundPause = false;
             playerStart();
         }
@@ -172,12 +168,10 @@ public class VideoView extends VideoBehaviorView {
             return;
         }
 
-        this.video = video;
-
         reset();
 
         String videoPath = video.getVideoPath();
-        mediaController.setTitle(video.getVideoTitle());
+        mediaController.setVideoInfo(video);
         mMediaPlayer.setVideoPath(videoPath);
     }
 
@@ -198,13 +192,6 @@ public class VideoView extends VideoBehaviorView {
 
         mMediaPlayer.start();
         Log.i("DDD", "playerStart");
-    }
-
-    private void reload() {
-        mMediaPlayer.stop();
-        mMediaPlayer.start();
-
-        showLoading();
     }
 
     @Override
@@ -244,10 +231,7 @@ public class VideoView extends VideoBehaviorView {
         videoSystemOverlay.show(VideoSystemOverlay.SystemType.BRIGHTNESS, max, progress);
     }
 
-    private OnVideoControlListener onVideoControlListener;
-
     public void setOnVideoControlListener(OnVideoControlListener onVideoControlListener) {
-        this.onVideoControlListener = onVideoControlListener;
         mediaController.setOnVideoControlListener(onVideoControlListener);
     }
 
