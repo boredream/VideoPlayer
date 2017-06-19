@@ -3,14 +3,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".VideoDetailActivity">
+    android:orientation="vertical"
+    tools:context="com.boredream.videoplayer.MainActivity">
 
-    <com.boredream.bdvideoplayer.BDVideoView
-        android:id="@+id/vv"
+    <Button
+        android:id="@+id/btn_start"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:background="#888">
-
-    </com.boredream.bdvideoplayer.BDVideoView>
-
+        android:layout_height="wrap_content"
+        android:layout_margin="32dp"
+        android:text="play" />
 </LinearLayout>

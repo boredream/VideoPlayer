@@ -7,14 +7,13 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.WindowManager;
 
-import com.boredream.videoplayer.video.DefaultOnVideoControlListener;
-import com.boredream.videoplayer.video.VideoView;
-import com.boredream.videoplayer.video.bean.VideoDetailInfo;
-import com.boredream.videoplayer.video.utils.DisplayUtils;
+import com.boredream.bdvideoplayer.listener.SimpleOnVideoControlListener;
+import com.boredream.bdvideoplayer.BDVideoView;
+import com.boredream.bdvideoplayer.utils.DisplayUtils;
 
 public class VideoDetailActivity extends AppCompatActivity {
 
-    private VideoView videoView;
+    private BDVideoView videoView;
 
     public static void start(Context context, VideoDetailInfo info) {
         Intent intent = new Intent(context, VideoDetailActivity.class);
@@ -29,8 +28,8 @@ public class VideoDetailActivity extends AppCompatActivity {
 
         VideoDetailInfo info = (VideoDetailInfo) getIntent().getSerializableExtra("info");
 
-        videoView = (VideoView) findViewById(R.id.vv);
-        videoView.setOnVideoControlListener(new DefaultOnVideoControlListener() {
+        videoView = (BDVideoView) findViewById(R.id.vv);
+        videoView.setOnVideoControlListener(new SimpleOnVideoControlListener() {
 
             @Override
             public void onBack() {
@@ -74,7 +73,7 @@ public class VideoDetailActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
 
-        videoView.release();
+        videoView.onDestroy();
     }
 
     @Override

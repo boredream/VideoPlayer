@@ -1,0 +1,16 @@
+<resources>
+
+    <style name="Widget.SeekBar.Media" parent="@android:style/Widget.SeekBar">
+        <item name="android:indeterminateOnly">false</item>
+        <item name="android:indeterminateDrawable">
+            @android:drawable/progress_indeterminate_horizontal
+        </item>
+        <item name="android:thumb">@drawable/media_thumb</item>
+
+        <item name="android:maxHeight">2.5dp</item>
+        <item name="android:minHeight">2.5dp</item>
+        <item name="android:progressDrawable">@drawable/video_progressbar</item>
+        <item name="android:thumbOffset">5dp</item>
+    </style>
+
+</resources>

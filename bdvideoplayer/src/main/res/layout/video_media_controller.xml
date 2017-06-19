@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <include
+        android:id="@+id/video_controller_bottom"
+        layout="@layout/video_controller_bottom" />
+
+    <ImageView
+        android:id="@+id/player_lock_screen"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="24dp"
+        android:src="@drawable/video_unlock"
+        android:visibility="gone" />
+
+    <com.boredream.bdvideoplayer.view.VideoErrorView
+        android:id="@+id/video_controller_error"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <include
+        android:id="@+id/video_controller_title"
+        layout="@layout/video_controller_title" />
+
+    <ImageView
+        android:id="@+id/video_back"
+        android:layout_width="32dp"
+        android:layout_height="44dp"
+        android:layout_alignTop="@id/video_controller_title"
+        android:padding="12dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_back_white" />
+
+</RelativeLayout>

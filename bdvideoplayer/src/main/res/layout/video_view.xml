@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <SurfaceView
+        android:id="@+id/video_surface"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <com.boredream.bdvideoplayer.view.VideoControllerView
+        android:id="@+id/video_controller"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    </com.boredream.bdvideoplayer.view.VideoControllerView>
+
+    <include
+        android:id="@+id/video_loading"
+        layout="@layout/video_controller_loading" />
+
+    <com.boredream.bdvideoplayer.view.VideoSystemOverlay
+        android:id="@+id/video_system_overlay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="gone">
+
+    </com.boredream.bdvideoplayer.view.VideoSystemOverlay>
+
+    <com.boredream.bdvideoplayer.view.VideoProgressOverlay
+        android:id="@+id/video_progress_overlay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:visibility="gone">
+
+    </com.boredream.bdvideoplayer.view.VideoProgressOverlay>
+
+</RelativeLayout>

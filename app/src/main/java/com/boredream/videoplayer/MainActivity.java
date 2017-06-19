@@ -4,9 +4,6 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
-import com.boredream.videoplayer.video.bean.VideoDetailInfo;
-import com.boredream.videoplayer.video.utils.MockUtils;
-
 public class MainActivity extends AppCompatActivity {
 
     @Override
