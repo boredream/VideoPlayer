@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".VideoDetailActivity">
 
     <com.boredream.bdvideoplayer.BDVideoView
@@ -12,5 +13,11 @@
         android:background="#888">
 
     </com.boredream.bdvideoplayer.BDVideoView>
+
+    <TextView
+        android:layout_margin="32dp"
+        android:text="下面放各种视频信息"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
 </LinearLayout>
